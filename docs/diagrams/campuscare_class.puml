@@ -1,0 +1,113 @@
+@startuml
+skinparam dpi 300
+skinparam defaultFontSize 15
+skinparam monochrome true
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam nodesep 60
+skinparam ranksep 50
+
+class User {
+  - id : UUID [PK]
+  - email : String
+  - fullName : String
+  - role : UserRole
+  - departmentId : UUID [FK]
+  + login()
+  + logout()
+}
+
+enum UserRole {
+  STUDENT
+  STAFF
+  ADMIN
+}
+
+class Department {
+  - id : UUID [PK]
+  - name : String
+  - code : String
+}
+
+class Category {
+  - id : UUID [PK]
+  - name : String
+  - departmentId : UUID [FK]
+}
+
+class Complaint {
+  - id : UUID [PK]
+  - ticketNumber : String
+  - reporterId : UUID [FK]
+  - assignedStaffId : UUID [FK]
+  - title : String
+  - priority : PriorityLevel
+  - status : TicketStatus
+  - slaDueAt : DateTime
+  + createTicket()
+  + updateStatus()
+}
+
+enum PriorityLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TicketStatus {
+  SUBMITTED
+  ASSIGNED
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+  REOPENED
+}
+
+class ProgressNote {
+  - id : UUID [PK]
+  - noteText : String
+  - isInternal : Boolean
+  + addNote()
+}
+
+class Attachment {
+  - id : UUID [PK]
+  - fileUrl : String
+  - fileType : String
+  - attachmentType : AttachmentType
+}
+
+enum AttachmentType {
+  INITIAL_EVIDENCE
+  REPAIR_PROOF
+}
+
+class Feedback {
+  - id : UUID [PK]
+  - rating : Integer (1-5 Stars)
+  - comments : String
+  + submitFeedback()
+}
+
+class AuditLog {
+  - id : UUID [PK]
+  - action : String
+  - oldState : JSONB
+  - newState : JSONB
+}
+
+User "1" --> "0..*" Complaint : "lodges (0..*)"
+Department "1" --> "0..*" Complaint : "handles"
+Category "1" --> "0..*" Complaint : "categorizes"
+Complaint "1" *-- "0..*" ProgressNote : "notes feed (0..*)"
+Complaint "1" *-- "0..*" Attachment : "evidence/proof (0..* optional)"
+Complaint "1" -- "0..1" Feedback : "rating (0..1 optional)"
+User "1" --> "0..*" AuditLog : "triggers"
+
+UserRole .. User
+PriorityLevel .. Complaint
+TicketStatus .. Complaint
+AttachmentType .. Attachment
+
+@enduml

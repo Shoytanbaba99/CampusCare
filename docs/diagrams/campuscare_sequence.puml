@@ -1,0 +1,80 @@
+@startuml
+skinparam dpi 300
+skinparam defaultFontSize 16
+skinparam monochrome true
+skinparam shadowing false
+skinparam participantPadding 30
+skinparam boxPadding 15
+
+title CampusCare Complaint Lifecycle Sequence
+
+actor Student as ST
+participant "Next.js Web App" as UI
+participant "Supabase Backend" as BE
+database "PostgreSQL DB" as DB
+actor Staff as SF
+actor Admin as AD
+
+== Phase 1: Complaint Lodging ==
+ST -> UI : Submit Complaint + Photo
+activate UI
+UI -> BE : Validate Payload & Upload Attachment
+activate BE
+BE -> DB : INSERT Into complaints (Status: Submitted)
+activate DB
+DB -> DB : Trigger: Generate Ticket Number (CMP-2026-XXXX) & Audit Log
+DB --> BE : Return Ticket Details
+deactivate DB
+BE --> UI : Confirm Creation
+deactivate BE
+UI --> ST : Display Receipt (CMP-2026-XXXX) & Timeline
+deactivate UI
+
+== Phase 2: Dispatch & Assignment ==
+AD -> UI : View Master Unassigned Queue
+activate UI
+UI -> BE : Fetch Submitted Complaints
+BE -> DB : SELECT * FROM complaints WHERE status = 'submitted'
+DB --> BE : Ticket Records
+BE --> UI : Render Data Table
+AD -> UI : Assign Ticket to Department / Staff
+UI -> BE : Dispatch Command
+BE -> DB : UPDATE complaints (assigned_staff_id, status = 'assigned')
+DB --> BE : Success
+BE --> UI : Revalidate Path
+UI --> AD : Dispatch Confirmed
+deactivate UI
+
+== Phase 3: Repair Execution ==
+SF -> UI : View Department Queue
+activate UI
+UI -> BE : Query Queue (Staff Role)
+BE -> DB : SELECT * FROM complaints WHERE department_id = staff.dept_id
+DB --> BE : Queue Items
+BE --> UI : Render Queue Cards
+SF -> UI : Accept Ticket & Add Progress Note
+UI -> BE : Status -> 'In Progress' + Insert Note
+BE -> DB : UPDATE status & INSERT progress_notes
+DB --> BE : Updated
+BE --> UI : Active Status Confirmed
+SF -> UI : Upload Repair Proof & Mark Resolved
+UI -> BE : Status -> 'Resolved' + Attachment Metadata
+BE -> DB : UPDATE status = 'resolved'
+DB --> BE : Resolved
+BE --> UI : Resolution Complete
+UI --> SF : Display Resolved Status
+deactivate UI
+
+== Phase 4: Resolution Verification ==
+ST -> UI : View Resolution Notice
+activate UI
+ST -> UI : Confirm Fix & Rate 5 Stars
+UI -> BE : Status -> 'Closed' + Insert Feedback
+BE -> DB : UPDATE status = 'closed' & INSERT feedback
+DB -> DB : Trigger: Record Audit Log
+DB --> BE : Complete
+BE --> UI : Closed Receipt
+UI --> ST : Ticket Archived
+deactivate UI
+
+@enduml

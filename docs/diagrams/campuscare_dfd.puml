@@ -1,0 +1,56 @@
+@startuml
+skinparam dpi 300
+skinparam defaultFontSize 14
+skinparam monochrome true
+skinparam shadowing false
+skinparam nodesep 25
+skinparam ranksep 30
+
+actor "Student" as Student
+actor "Staff" as Staff
+actor "Admin" as Admin
+
+rectangle "1.0 Auth & Session" as P1
+rectangle "2.0 Complaint Submission" as P2
+rectangle "3.0 Staff Dispatch" as P3
+rectangle "4.0 Maintenance Workflow" as P4
+rectangle "5.0 Verification & Rating" as P5
+rectangle "6.0 Analytics & Audit" as P6
+
+database "D1: Users" as DS1
+database "D2: Complaints" as DS2
+database "D3: Attachments" as DS3
+database "D4: Feedback" as DS4
+database "D5: Audit Logs" as DS5
+
+Student -down-> P1
+P1 -down-> DS1
+
+Student -down-> P2
+P2 -down-> DS2
+P2 -down-> DS3
+P2 -down-> DS5
+
+Admin -down-> P3
+P3 -down-> DS2
+P3 -down-> DS5
+
+Staff -down-> P4
+P4 -down-> DS2
+P4 -down-> DS3
+
+Student -down-> P5
+P5 -down-> DS2
+P5 -down-> DS4
+
+Admin -down-> P6
+P6 -down-> DS2
+P6 -down-> DS5
+
+P1 -[hidden]down- P2
+P2 -[hidden]down- P3
+P3 -[hidden]down- P4
+P4 -[hidden]down- P5
+P5 -[hidden]down- P6
+
+@enduml

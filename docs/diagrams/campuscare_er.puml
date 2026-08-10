@@ -1,0 +1,90 @@
+@startuml
+skinparam dpi 300
+skinparam defaultFontSize 15
+skinparam monochrome true
+skinparam shadowing false
+skinparam nodesep 70
+skinparam ranksep 50
+left to right direction
+
+entity "users" as users {
+  * id : UUID (PK)
+  --
+  email : TEXT
+  full_name : TEXT
+  role : USER_ROLE
+  department_id : UUID (FK)
+}
+
+entity "departments" as departments {
+  * id : UUID (PK)
+  --
+  name : TEXT
+  code : TEXT
+}
+
+entity "categories" as categories {
+  * id : UUID (PK)
+  --
+  name : TEXT
+  department_id : UUID (FK)
+}
+
+entity "complaints" as complaints {
+  * id : UUID (PK)
+  --
+  ticket_number : TEXT
+  reporter_id : UUID (FK)
+  assigned_staff_id : UUID (FK)
+  department_id : UUID (FK)
+  category_id : UUID (FK)
+  priority : PRIORITY_LEVEL
+  status : TICKET_STATUS
+  sla_due_at : TIMESTAMPTZ
+}
+
+entity "progress_notes" as progress_notes {
+  * id : UUID (PK)
+  --
+  complaint_id : UUID (FK)
+  author_id : UUID (FK)
+  note_text : TEXT
+}
+
+entity "attachments" as attachments {
+  * id : UUID (PK)
+  --
+  complaint_id : UUID (FK)
+  file_url : TEXT
+  attachment_type : ATTACHMENT_TYPE
+}
+
+entity "feedback" as feedback {
+  * id : UUID (PK)
+  --
+  complaint_id : UUID (FK)
+  rating : INTEGER
+  comments : TEXT
+}
+
+entity "audit_logs" as audit_logs {
+  * id : UUID (PK)
+  --
+  complaint_id : UUID (FK)
+  actor_id : UUID (FK)
+  action : TEXT
+}
+
+departments ||--o{ users
+departments ||--|{ categories
+departments ||--o{ complaints
+categories ||--o{ complaints
+users ||--o{ complaints : "reporter"
+users ||--o{ complaints : "staff"
+complaints ||--o{ progress_notes
+complaints ||--o{ attachments
+complaints ||--o| feedback
+users ||--o{ audit_logs
+complaints ||--o{ audit_logs
+
+@enduml

@@ -1,0 +1,45 @@
+@startuml
+skinparam dpi 300
+skinparam defaultFontSize 15
+skinparam monochrome true
+skinparam shadowing false
+skinparam statePadding 12
+skinparam nodesep 40
+skinparam ranksep 40
+
+[*] --> Submitted : Student Submits
+
+state Submitted {
+  Submitted : Ticket ID Generated (CMP-2026-XXXX)
+}
+
+state Assigned {
+  Assigned : Dispatched to Dept & Staff
+}
+
+state In_Progress {
+  In_Progress : Staff Accepts & Appends Notes
+}
+
+state Resolved {
+  Resolved : Repair Proof Uploaded
+}
+
+state Closed {
+  Closed : Resolution Confirmed (Rating Stored)
+}
+
+state Reopened {
+  Reopened : Resolution Rejected (Reason Required)
+}
+
+Submitted --> Assigned : Admin Dispatch
+Assigned --> In_Progress : Staff Acceptance
+In_Progress --> Resolved : Mark Resolved
+Resolved --> Closed : Confirm Fix
+Resolved --> Reopened : Reject Fix
+Reopened --> In_Progress : Re-evaluate Repair
+
+Closed --> [*]
+
+@enduml

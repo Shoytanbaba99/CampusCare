@@ -1,46 +1,32 @@
 # CampusCare
 
-> **Centralized University Complaint & Facility Helpdesk System**
+A friend gave me the idea for this campus facility management system when I asked him for something to build just to pass a class. The goal was to ship a complete MVP product and see what I could learn along the way. 
 
-CampusCare is an internal, 3-tier web platform designed to streamline infrastructure maintenance, issue reporting, and departmental resolution workflows across university premises.
+It is not a perfectly planned corporate product. It is a sandbox where I ended up running into and fixing some unexpectedly annoying edge cases with modern web frameworks and databases.
 
----
+## Tech Stack
 
-## 📌 Academic Context
+*   **Next.js 16 App Router:** Everything uses React 19 Server Actions.
+*   **Supabase:** Handling PostgreSQL, authentication, and Row Level Security (RLS).
+*   **Tailwind CSS:** Custom Emerald styling.
+*   **Zod:** Strict server and client form validation.
+*   **Upstash Redis:** Rate limiting.
 
-- **Course Name:** Software Project Design and Development (CSE 416)
-- **University:** University of Information Technology and Sciences (UITS)
-- **Department:** Department of Computer Science and Engineering
-- **Course Instructor:** **Al-Imtiaz**, Associate Professor & Head (Ph.D. Research Fellow, BUET)
-- **Group Members:**
-  - **Rudro Antony Mrong** (ID: `0432320005101059`)
-  - **Md. Masud Rahman** (ID: `0432320005101064`)
+## Hard Lessons Learned
 
----
+Building this MVP forced me to fix a few major issues you only run into when building full applications:
 
-## 📋 Documentation Suite & Deliverables
+1.  **PostgreSQL Infinite Loops**
+    I wrote an RLS policy that queried the `users` table from inside a policy attached to the `users` table. This causes PostgreSQL to throw an infinite recursion loop and crash. I had to rewrite the permission checks using `SECURITY DEFINER STABLE` SQL functions to bypass the evaluation loop.
 
-All completed planning deliverables, system design diagrams, and specifications are archived under the [`docs/`](docs/) directory:
+2.  **Zod Validating Fake Database Seeds**
+    My database seed had dummy UUIDs like `11111111-1111-1111-1111-111111111111`. Zod's `.uuid()` function strictly enforces the RFC 4122 spec where position 17 must be 8, 9, a, or b. It silently failed all my forms because the dummy IDs had a 1 in that position. I replaced those checks with `.min(1)` for foreign keys.
 
-| Deliverable                    | Description                                                      | Status       | Location                                                                 |
-| :----------------------------- | :--------------------------------------------------------------- | :----------- | :----------------------------------------------------------------------- |
-| **Project Proposal**           | Project scope, objectives, role capabilities, and roadmap        | ✅ Completed | [`docs/proposal/Project_Proposal.md`](docs/proposal/Project_Proposal.md) |
-| **Product Requirements (PRD)** | Core specifications, SLA resolution matrix, and SQL schemas      | ✅ Completed | [`docs/prd/PRD.md`](docs/prd/PRD.md)                                     |
-| **LaTeX SRS Document**         | 30-Page IEEE 830 compliant Software Requirements Specification   | ✅ Completed | [`docs/srs/SRS.pdf`](docs/srs/SRS.pdf) / [`SRS.tex`](docs/srs/SRS.tex)   |
-| **System Diagrams**            | High-resolution UML, ER, Sequence, State Machine, and DFD models | ✅ Completed | [`docs/diagrams/`](docs/diagrams/)                                       |
+3.  **React 19 Form Keys**
+    Using `useActionState` progressive enhancement means Next.js injects index prefixes into form keys (like `_1_departmentId`). You cannot simply use `formData.get("departmentId")` anymore and must parse the formData entries defensively.
 
----
+## Running Locally
 
-## 🛠️ Planned Technology Stack
-
-- **Frontend:** Next.js (App Router, React 19, TypeScript), Tailwind CSS, Shadcn UI
-- **Backend & API:** Next.js Server Actions & React Server Components (RSC)
-- **Database & Engine:** Supabase PostgreSQL with Row Level Security (RLS) policies
-- **Authentication:** Supabase Auth (`HttpOnly` session cookie management)
-- **Storage:** Supabase Storage buckets for initial issue evidence and repair completion photos
-
----
-
-## 📄 License
-
-This repository is developed strictly for academic evaluation in CSE 416 at the University of Information Technology and Sciences (UITS).
+1.  Clone the repository and run `pnpm install`.
+2.  Copy `.env.example` to `.env.local` and add your keys.
+3.  Run `pnpm dev`.

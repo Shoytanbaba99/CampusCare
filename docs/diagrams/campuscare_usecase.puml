@@ -1,0 +1,65 @@
+@startuml
+skinparam dpi 300
+skinparam defaultFontSize 14
+skinparam packageStyle rectangle
+skinparam monochrome true
+skinparam shadowing false
+skinparam nodesep 25
+skinparam ranksep 25
+
+actor "Student (End-User)" as Student
+actor "Staff (Resolver)" as Staff
+actor "Admin (Dispatcher)" as Admin
+
+package "Student System" {
+    usecase "Submit Complaint\n(With Photo)" as UC1
+    usecase "Track Timeline" as UC2
+    usecase "Confirm / Reject Fix" as UC3
+    usecase "Submit Star Rating" as UC4
+
+    UC1 -[hidden]down- UC2
+    UC2 -[hidden]down- UC3
+    UC3 -[hidden]down- UC4
+}
+
+package "Staff System" {
+    usecase "View Dept Queue" as UC5
+    usecase "Accept Ticket" as UC6
+    usecase "Append Progress Note" as UC7
+    usecase "Mark Ticket Resolved" as UC8
+
+    UC5 -[hidden]down- UC6
+    UC6 -[hidden]down- UC7
+    UC7 -[hidden]down- UC8
+}
+
+package "Admin System" {
+    usecase "Dispatch Ticket" as UC9
+    usecase "Override Priority" as UC10
+    usecase "Manage Users" as UC11
+    usecase "View Audit Logs" as UC12
+
+    UC9 -[hidden]down- UC10
+    UC10 -[hidden]down- UC11
+    UC11 -[hidden]down- UC12
+}
+
+Student --> UC1
+Student --> UC2
+Student --> UC3
+Student --> UC4
+
+Staff --> UC5
+Staff --> UC6
+Staff --> UC7
+Staff --> UC8
+
+Admin --> UC9
+Admin --> UC10
+Admin --> UC11
+Admin --> UC12
+
+"Student System" -[hidden]down- "Staff System"
+"Staff System" -[hidden]down- "Admin System"
+
+@enduml
