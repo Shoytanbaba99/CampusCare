@@ -109,17 +109,30 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_complaint ON public.audit_logs(complai
 -- 11. AUTOMATIC PROFILE CREATION TRIGGER ON SIGNUP
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+    user_role_val public.user_role := 'student'::public.user_role;
+    meta_role text;
 BEGIN
+    meta_role := NEW.raw_user_meta_data->>'role';
+    IF meta_role = 'admin' THEN
+        user_role_val := 'admin'::public.user_role;
+    ELSIF meta_role = 'staff' THEN
+        user_role_val := 'staff'::public.user_role;
+    END IF;
+
     INSERT INTO public.users (id, email, full_name, role)
     VALUES (
         NEW.id,
-        NEW.email,
+        COALESCE(NEW.email, 'user_' || NEW.id || '@campuscare.edu'),
         COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)),
-        COALESCE((NEW.raw_user_meta_data->>'role')::public.user_role, 'student'::public.user_role)
+        user_role_val
     )
     ON CONFLICT (id) DO UPDATE SET
+        email = EXCLUDED.email,
         full_name = EXCLUDED.full_name,
         role = EXCLUDED.role;
+    RETURN NEW;
+EXCEPTION WHEN OTHERS THEN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

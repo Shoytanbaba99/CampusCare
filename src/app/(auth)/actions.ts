@@ -27,7 +27,14 @@ export async function loginAction(prevState: unknown, formData: FormData) {
     return { error: error.message };
   }
 
-  const userRole = (data.user?.user_metadata?.role as string) || "student";
+  // Fetch authoritative role from public.users table
+  const { data: profile } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", data.user.id)
+    .single();
+
+  const userRole = profile?.role || (data.user?.user_metadata?.role as string) || "student";
   const targetDashboard =
     userRole === "admin"
       ? "/admin/dashboard"
