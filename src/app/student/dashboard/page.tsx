@@ -105,13 +105,11 @@ export default async function StudentDashboardPage() {
           </span>
         </div>
 
-        {error && (
+        {error ? (
           <div className="p-6 text-center text-red-400 text-sm">
             Failed to load complaints. Please refresh the page.
           </div>
-        )}
-
-        {!complaints || complaints.length === 0 ? (
+        ) : !complaints || complaints.length === 0 ? (
           <div className="p-12 text-center space-y-4">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#1F2937] text-[#9CA3AF]">
               <FileText className="w-6 h-6" />

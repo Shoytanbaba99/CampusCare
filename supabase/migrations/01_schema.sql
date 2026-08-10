@@ -2,12 +2,23 @@
 -- Approved Specification per PRD v1.1.0
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- 1. ENUMS
-CREATE TYPE user_role AS ENUM ('student', 'staff', 'admin');
-CREATE TYPE ticket_priority AS ENUM ('low', 'medium', 'high', 'critical');
-CREATE TYPE ticket_status AS ENUM ('submitted', 'assigned', 'in_progress', 'resolved', 'closed', 'reopened');
-CREATE TYPE attachment_kind AS ENUM ('initial_evidence', 'repair_proof');
+-- 1. ENUMS (Safe conditional creation)
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role') THEN
+        CREATE TYPE user_role AS ENUM ('student', 'staff', 'admin');
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'ticket_priority') THEN
+        CREATE TYPE ticket_priority AS ENUM ('low', 'medium', 'high', 'critical');
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'ticket_status') THEN
+        CREATE TYPE ticket_status AS ENUM ('submitted', 'assigned', 'in_progress', 'resolved', 'closed', 'reopened');
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'attachment_kind') THEN
+        CREATE TYPE attachment_kind AS ENUM ('initial_evidence', 'repair_proof');
+    END IF;
+END $$;
 
 -- 2. DEPARTMENTS TABLE
 CREATE TABLE IF NOT EXISTS public.departments (
@@ -106,7 +117,28 @@ CREATE INDEX IF NOT EXISTS idx_complaints_dept_status ON public.complaints(depar
 CREATE INDEX IF NOT EXISTS idx_complaints_status_priority ON public.complaints(status, priority);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_complaint ON public.audit_logs(complaint_id);
 
--- 11. AUTOMATIC PROFILE CREATION TRIGGER ON SIGNUP
+-- 11. SECURITY DEFINER HELPER FUNCTIONS TO PREVENT RLS RECURSION
+CREATE OR REPLACE FUNCTION public.get_user_role(user_id UUID)
+RETURNS public.user_role AS $$
+DECLARE
+    u_role public.user_role;
+BEGIN
+    SELECT role INTO u_role FROM public.users WHERE id = user_id;
+    RETURN COALESCE(u_role, 'student'::public.user_role);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+
+CREATE OR REPLACE FUNCTION public.get_user_department_id(user_id UUID)
+RETURNS UUID AS $$
+DECLARE
+    dept_id UUID;
+BEGIN
+    SELECT department_id INTO dept_id FROM public.users WHERE id = user_id;
+    RETURN dept_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+
+-- 12. AUTOMATIC PROFILE CREATION TRIGGER ON SIGNUP
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -129,8 +161,7 @@ BEGIN
     )
     ON CONFLICT (id) DO UPDATE SET
         email = EXCLUDED.email,
-        full_name = EXCLUDED.full_name,
-        role = EXCLUDED.role;
+        full_name = EXCLUDED.full_name;
     RETURN NEW;
 EXCEPTION WHEN OTHERS THEN
     RETURN NEW;
@@ -141,15 +172,13 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- 12. TICKET NUMBER SEQUENCING (CMP-YYYY-XXXX)
+-- 13. TICKET NUMBER SEQUENCING (CMP-YYYY-XXXX)
 CREATE SEQUENCE IF NOT EXISTS complaint_ticket_seq START WITH 1 INCREMENT BY 1;
 
 CREATE OR REPLACE FUNCTION public.generate_ticket_number()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF NEW.ticket_number IS NULL OR NEW.ticket_number = '' THEN
-        NEW.ticket_number := 'CMP-' || TO_CHAR(NOW(), 'YYYY') || '-' || LPAD(NEXTVAL('complaint_ticket_seq')::TEXT, 4, '0');
-    END IF;
+    NEW.ticket_number := 'CMP-' || TO_CHAR(NOW(), 'YYYY') || '-' || LPAD(NEXTVAL('complaint_ticket_seq')::TEXT, 4, '0');
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -158,7 +187,7 @@ CREATE OR REPLACE TRIGGER set_complaint_ticket_number
     BEFORE INSERT ON public.complaints
     FOR EACH ROW EXECUTE FUNCTION public.generate_ticket_number();
 
--- 13. ROW LEVEL SECURITY (RLS) POLICIES
+-- 14. ROW LEVEL SECURITY (RLS) POLICIES
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.departments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
@@ -168,12 +197,33 @@ ALTER TABLE public.attachments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.feedback ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 
--- Users RLS
+-- Drop old policies to prevent collision
+DROP POLICY IF EXISTS "Users can view own profile or admins can view all" ON public.users;
+DROP POLICY IF EXISTS "Users can update own profile or admins update all" ON public.users;
+DROP POLICY IF EXISTS "Authenticated users can view departments" ON public.departments;
+DROP POLICY IF EXISTS "Authenticated users can view categories" ON public.categories;
+DROP POLICY IF EXISTS "Students view own complaints, Staff view department queue, Admins view all" ON public.complaints;
+DROP POLICY IF EXISTS "Students insert own complaints" ON public.complaints;
+DROP POLICY IF EXISTS "Staff and Admins update complaints" ON public.complaints;
+DROP POLICY IF EXISTS "Authenticated users view visible progress notes" ON public.progress_notes;
+DROP POLICY IF EXISTS "Staff and Admins insert progress notes" ON public.progress_notes;
+DROP POLICY IF EXISTS "Authenticated users view attachments" ON public.attachments;
+DROP POLICY IF EXISTS "Authenticated users insert attachments" ON public.attachments;
+DROP POLICY IF EXISTS "Users view feedback" ON public.feedback;
+DROP POLICY IF EXISTS "Students insert feedback" ON public.feedback;
+DROP POLICY IF EXISTS "Admins view audit logs" ON public.audit_logs;
+DROP POLICY IF EXISTS "System inserts audit logs" ON public.audit_logs;
+
+-- Users RLS (Non-recursive)
 CREATE POLICY "Users can view own profile or admins can view all"
     ON public.users FOR SELECT
-    USING (auth.uid() = id OR EXISTS (
-        SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin'
-    ));
+    TO authenticated
+    USING (auth.uid() = id OR public.get_user_role(auth.uid()) = 'admin');
+
+CREATE POLICY "Users can update own profile or admins update all"
+    ON public.users FOR UPDATE
+    TO authenticated
+    USING (auth.uid() = id OR public.get_user_role(auth.uid()) = 'admin');
 
 -- Departments & Categories RLS (Public read for authenticated)
 CREATE POLICY "Authenticated users can view departments"
@@ -184,20 +234,17 @@ CREATE POLICY "Authenticated users can view categories"
     ON public.categories FOR SELECT
     TO authenticated USING (true);
 
--- Complaints RLS (Strict Isolation)
+-- Complaints RLS (Strict Non-Recursive Isolation)
 CREATE POLICY "Students view own complaints, Staff view department queue, Admins view all"
     ON public.complaints FOR SELECT
     TO authenticated
     USING (
         reporter_id = auth.uid()
         OR assigned_staff_id = auth.uid()
-        OR EXISTS (
-            SELECT 1 FROM public.users u
-            WHERE u.id = auth.uid() 
-            AND (
-                u.role = 'admin' 
-                OR (u.role = 'staff' AND u.department_id = complaints.department_id)
-            )
+        OR public.get_user_role(auth.uid()) = 'admin'
+        OR (
+            public.get_user_role(auth.uid()) = 'staff'
+            AND department_id = public.get_user_department_id(auth.uid())
         )
     );
 
@@ -211,12 +258,61 @@ CREATE POLICY "Staff and Admins update complaints"
     TO authenticated
     USING (
         assigned_staff_id = auth.uid()
-        OR EXISTS (
-            SELECT 1 FROM public.users u
-            WHERE u.id = auth.uid() 
-            AND (
-                u.role = 'admin' 
-                OR (u.role = 'staff' AND u.department_id = complaints.department_id)
-            )
+        OR public.get_user_role(auth.uid()) = 'admin'
+        OR (
+            public.get_user_role(auth.uid()) = 'staff'
+            AND department_id = public.get_user_department_id(auth.uid())
         )
     );
+
+-- Progress Notes RLS
+CREATE POLICY "Authenticated users view visible progress notes"
+    ON public.progress_notes FOR SELECT
+    TO authenticated
+    USING (
+        is_internal = FALSE
+        OR public.get_user_role(auth.uid()) IN ('staff', 'admin')
+    );
+
+CREATE POLICY "Staff and Admins insert progress notes"
+    ON public.progress_notes FOR INSERT
+    TO authenticated
+    WITH CHECK (public.get_user_role(auth.uid()) IN ('staff', 'admin'));
+
+-- Attachments RLS
+CREATE POLICY "Authenticated users view attachments"
+    ON public.attachments FOR SELECT
+    TO authenticated
+    USING (true);
+
+CREATE POLICY "Authenticated users insert attachments"
+    ON public.attachments FOR INSERT
+    TO authenticated
+    WITH CHECK (uploader_id = auth.uid());
+
+-- Feedback RLS
+CREATE POLICY "Users view feedback"
+    ON public.feedback FOR SELECT
+    TO authenticated
+    USING (true);
+
+CREATE POLICY "Students insert feedback"
+    ON public.feedback FOR INSERT
+    TO authenticated
+    WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM public.complaints c
+            WHERE c.id = complaint_id AND c.reporter_id = auth.uid()
+        )
+    );
+
+-- Audit Logs RLS
+CREATE POLICY "Admins view audit logs"
+    ON public.audit_logs FOR SELECT
+    TO authenticated
+    USING (public.get_user_role(auth.uid()) = 'admin');
+
+CREATE POLICY "System inserts audit logs"
+    ON public.audit_logs FOR INSERT
+    TO authenticated
+    WITH CHECK (true);

@@ -72,7 +72,7 @@ export default async function StaffDashboardPage() {
     (c) => c.priority === "critical" && c.status !== "closed",
   ).length;
   const overdueCount = queueList.filter(
-    (c) => new Date(c.sla_due_at) < now && c.status !== "closed" && c.status !== "resolved",
+    (c) => c.sla_due_at && new Date(c.sla_due_at) < now && c.status !== "closed" && c.status !== "resolved",
   ).length;
 
   return (
@@ -138,13 +138,11 @@ export default async function StaffDashboardPage() {
           <span className="text-xs text-[#9CA3AF]">{queueList.length} tickets in queue</span>
         </div>
 
-        {error && (
+        {error ? (
           <div className="p-6 text-center text-red-400 text-sm">
             Failed to load department queue. Please refresh the page.
           </div>
-        )}
-
-        {queueList.length === 0 ? (
+        ) : queueList.length === 0 ? (
           <div className="p-12 text-center space-y-3">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#1F2937] text-emerald-400">
               <CheckCircle2 className="w-6 h-6" />

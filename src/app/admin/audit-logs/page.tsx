@@ -58,13 +58,11 @@ export default async function AuditLogsPage() {
           <span className="text-xs text-[#9CA3AF]">Showing last 100 system events</span>
         </div>
 
-        {error && (
+        {error ? (
           <div className="p-6 text-center text-red-400 text-sm">
             Failed to load audit logs. Please refresh the page.
           </div>
-        )}
-
-        {!auditLogs || auditLogs.length === 0 ? (
+        ) : !auditLogs || auditLogs.length === 0 ? (
           <div className="p-12 text-center text-xs text-[#9CA3AF]">
             No audit log events recorded yet.
           </div>

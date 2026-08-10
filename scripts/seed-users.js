@@ -23,7 +23,9 @@ async function seed() {
   ];
 
   for (const u of users) {
-    console.log(`Creating ${u.email}...`);
+    console.log(`Processing ${u.email}...`);
+    let userId;
+
     const { data, error } = await supabase.auth.admin.createUser({
       email: u.email,
       password: u.password,
@@ -32,29 +34,43 @@ async function seed() {
     });
 
     if (error) {
-      if (error.message.includes('User already registered')) {
-         console.log(`- ${u.email} already exists.`);
+      if (error.message.toLowerCase().includes('already') || error.message.toLowerCase().includes('registered')) {
+         console.log(`- ${u.email} already exists in auth. Fetching user ID...`);
+         const { data: listData } = await supabase.auth.admin.listUsers();
+         const existingUser = listData?.users?.find((usr) => usr.email === u.email);
+         if (existingUser) {
+           userId = existingUser.id;
+         }
       } else {
          console.error(`- Failed to create ${u.email}:`, error.message);
+         continue;
       }
     } else {
-      console.log(`- Successfully created ${u.email}`);
-      // If staff, update department_id in public.users
-      if (u.role === "staff" && u.department_id) {
-        const { error: updateError } = await supabase
-           .from("users")
-           .update({ department_id: u.department_id })
-           .eq("id", data.user.id);
-        
-        if (updateError) {
-           console.error(`  - Failed to assign department for ${u.email}:`, updateError.message);
-        } else {
-           console.log(`  - Assigned department for ${u.email}`);
-        }
+      userId = data.user.id;
+      console.log(`- Created auth user ${u.email} (${userId})`);
+    }
+
+    if (userId) {
+      // Ensure public.users table has the correct role, full_name, and department_id
+      const updatePayload = {
+        role: u.role,
+        full_name: u.full_name,
+        ...(u.department_id ? { department_id: u.department_id } : {}),
+      };
+
+      const { error: updateError } = await supabase
+        .from("users")
+        .update(updatePayload)
+        .eq("id", userId);
+
+      if (updateError) {
+        console.error(`  - Failed to update public.users for ${u.email}:`, updateError.message);
+      } else {
+        console.log(`  - Successfully updated role '${u.role}' in public.users for ${u.email}`);
       }
     }
   }
-  
+
   console.log("Done seeding users.");
 }
 

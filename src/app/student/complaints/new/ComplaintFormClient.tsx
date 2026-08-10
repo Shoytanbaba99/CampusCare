@@ -40,14 +40,23 @@ export default function ComplaintFormClient({ departments, categories }: Complai
   const [selectedPriority, setSelectedPriority] = useState<string>("medium");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
+  const activeDeptId = selectedDeptId || departments[0]?.id || "";
+
   useEffect(() => {
     if (state?.error) {
       toast.error(state.error);
     }
   }, [state]);
 
+  useEffect(() => {
+    if (departments.length > 0 && (!selectedDeptId || !departments.some((d) => d.id === selectedDeptId))) {
+      setSelectedDeptId(departments[0].id);
+    }
+  }, [departments, selectedDeptId]);
+
   // Filter categories based on selected department
-  const filteredCategories = categories.filter((cat) => cat.department_id === selectedDeptId);
+  const filteredCategories = categories.filter((cat) => cat.department_id === activeDeptId);
+  const displayCategories = filteredCategories.length > 0 ? filteredCategories : categories;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -64,7 +73,7 @@ export default function ComplaintFormClient({ departments, categories }: Complai
       <div className="flex items-center gap-4">
         <Link
           href="/student/dashboard"
-          className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-[#111827] border border-[#1F2937] text-[#9CA3AF] hover:text-[#F9FAFB] hover:bg-[#1F2937] transition-all"
+          className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-[#111827] border border-[#1F2937] text-[#9CA3AF] hover:text-[#F9FAFB] hover:bg-[#1F2937] active:scale-[0.97] transition-all duration-150 ease-out"
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
@@ -117,7 +126,7 @@ export default function ComplaintFormClient({ departments, categories }: Complai
                 <select
                   id="departmentId"
                   name="departmentId"
-                  value={selectedDeptId}
+                  value={activeDeptId}
                   onChange={(e) => setSelectedDeptId(e.target.value)}
                   className="w-full px-4 py-2.5 bg-[#090D16] border border-[#1F2937] rounded-lg text-sm text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] transition-all appearance-none"
                 >
@@ -144,7 +153,7 @@ export default function ComplaintFormClient({ departments, categories }: Complai
                 required
                 className="w-full px-4 py-2.5 bg-[#090D16] border border-[#1F2937] rounded-lg text-sm text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6366F1] transition-all appearance-none"
               >
-                {filteredCategories.map((cat) => (
+                {displayCategories.map((cat) => (
                   <option key={cat.id} value={cat.id} className="bg-[#111827]">
                     {cat.name}
                   </option>
@@ -247,6 +256,7 @@ export default function ComplaintFormClient({ departments, categories }: Complai
                     src={previewUrl}
                     alt="Evidence preview"
                     fill
+                    unoptimized
                     sizes="(max-width: 640px) 100vw, 384px"
                     className="rounded-lg object-contain border border-[#1F2937]"
                   />
