@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useActionState } from "react";
+import { useState, useEffect, useActionState } from "react";
+import { toast } from "sonner";
 import { confirmResolutionAction, rejectResolutionAction } from "../detailActions";
 import { CheckCircle2, XCircle, Star, AlertCircle, Send } from "lucide-react";
 
@@ -20,6 +21,22 @@ export default function VerificationPrompt({ complaintId }: VerificationPromptPr
     rejectResolutionAction,
     null
   );
+
+  useEffect(() => {
+    if (confirmState?.success) {
+      toast.success("Ticket confirmed resolved and closed!");
+    } else if (confirmState?.error) {
+      toast.error(confirmState.error);
+    }
+  }, [confirmState]);
+
+  useEffect(() => {
+    if (rejectState?.success) {
+      toast.warning("Resolution rejected. Ticket has been reopened.");
+    } else if (rejectState?.error) {
+      toast.error(rejectState.error);
+    }
+  }, [rejectState]);
 
   return (
     <div className="bg-[#111827] border-2 border-emerald-500/30 rounded-xl p-6 shadow-2xl space-y-4">

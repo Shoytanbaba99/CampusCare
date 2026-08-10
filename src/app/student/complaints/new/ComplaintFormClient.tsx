@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useActionState } from "react";
+import { useState, useEffect, useActionState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 import { createComplaintAction } from "../actions";
 import {
   ShieldAlert,
@@ -38,6 +39,12 @@ export default function ComplaintFormClient({ departments, categories }: Complai
   const [selectedDeptId, setSelectedDeptId] = useState<string>(departments[0]?.id || "");
   const [selectedPriority, setSelectedPriority] = useState<string>("medium");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (state?.error) {
+      toast.error(state.error);
+    }
+  }, [state]);
 
   // Filter categories based on selected department
   const filteredCategories = categories.filter((cat) => cat.department_id === selectedDeptId);

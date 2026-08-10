@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useActionState } from "react";
+import { useState, useEffect, useActionState } from "react";
 import Image from "next/image";
+import { toast } from "sonner";
 import { acceptTicketAction, appendProgressNoteAction, resolveTicketAction } from "../../actions";
 import {
   Wrench,
@@ -33,6 +34,30 @@ export default function StaffActionPanel({
   const [acceptState, acceptFormAction, isAcceptPending] = useActionState(acceptTicketAction, null);
   const [noteState, noteFormAction, isNotePending] = useActionState(appendProgressNoteAction, null);
   const [resolveState, resolveFormAction, isResolvePending] = useActionState(resolveTicketAction, null);
+
+  useEffect(() => {
+    if (acceptState?.success) {
+      toast.success("Ticket accepted into your queue!");
+    } else if (acceptState?.error) {
+      toast.error(acceptState.error);
+    }
+  }, [acceptState]);
+
+  useEffect(() => {
+    if (noteState?.success) {
+      toast.success("Progress note appended to timeline!");
+    } else if (noteState?.error) {
+      toast.error(noteState.error);
+    }
+  }, [noteState]);
+
+  useEffect(() => {
+    if (resolveState?.success) {
+      toast.success("Ticket marked resolved and student notified!");
+    } else if (resolveState?.error) {
+      toast.error(resolveState.error);
+    }
+  }, [resolveState]);
 
   const isAssignedToMe = assignedStaffId === currentUserId;
   const canAccept = status === "submitted" || status === "assigned";
