@@ -44,7 +44,7 @@ export default function VerificationPrompt({ complaintId }: VerificationPromptPr
         <CheckCircle2 className="w-6 h-6 shrink-0" />
         <div>
           <h3 className="font-bold text-base text-[#F9FAFB]">
-            Maintenance Completed — Verification Required
+            Maintenance Completed: Verification Required
           </h3>
           <p className="text-xs text-[#9CA3AF]">
             The staff resolver has marked this ticket resolved. Please confirm or reject the repair action.

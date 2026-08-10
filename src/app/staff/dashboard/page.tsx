@@ -4,12 +4,12 @@ import { createClient } from "@/utils/supabase/server";
 import {
   Wrench,
   Clock,
-  ShieldAlert,
   CheckCircle2,
-  Building2,
-  ChevronRight,
-  UserCheck,
   AlertTriangle,
+  ChevronRight,
+  Building2,
+  Calendar,
+  User,
 } from "lucide-react";
 
 export default async function StaffDashboardPage() {
@@ -23,24 +23,25 @@ export default async function StaffDashboardPage() {
     redirect("/login");
   }
 
-  // Fetch staff profile for department & role info
+  // Fetch staff user profile to get their assigned department
   const { data: profile } = await supabase
     .from("users")
-    .select("id, role, department_id, full_name, departments(name, code)")
+    .select("role, department_id, departments(name)")
     .eq("id", user.id)
     .single();
 
-  const userRole = profile?.role || "staff";
-  const deptId = profile?.department_id;
-  const deptName = Array.isArray(profile?.departments)
-    ? profile?.departments[0]?.name
-    : (profile?.departments as unknown as { name: string } | null)?.name || "All Departments";
+  if (profile?.role !== "staff" && profile?.role !== "admin") {
+    redirect("/student/dashboard");
+  }
 
-  // Build Complaints Query based on Department ID & Assigned Staff ID
+  const deptName = Array.isArray(profile?.departments)
+    ? profile.departments[0]?.name
+    : (profile?.departments as { name: string } | null)?.name || "All Departments";
+
+  // Fetch complaints assigned to this staff member or their department
   let query = supabase
     .from("complaints")
-    .select(
-      `
+    .select(`
       id,
       ticket_number,
       title,
@@ -49,173 +50,156 @@ export default async function StaffDashboardPage() {
       status,
       created_at,
       sla_due_at,
-      assigned_staff_id,
       departments(name),
       categories(name),
       reporter:users!complaints_reporter_id_fkey(full_name)
-    `,
-    )
+    `)
     .order("created_at", { ascending: false });
 
-  if (userRole !== "admin" && deptId) {
-    query = query.or(`department_id.eq.${deptId},assigned_staff_id.eq.${user.id}`);
+  if (profile.role === "staff" && profile.department_id) {
+    query = query.eq("department_id", profile.department_id);
   }
 
   const { data: complaints, error } = await query;
 
   const now = new Date();
-  const queueList = complaints || [];
-
-  const totalDeptCount = queueList.length;
-  const assignedToMeCount = queueList.filter((c) => c.assigned_staff_id === user.id).length;
-  const criticalSlaCount = queueList.filter(
-    (c) => c.priority === "critical" && c.status !== "closed",
-  ).length;
-  const overdueCount = queueList.filter(
-    (c) => c.sla_due_at && new Date(c.sla_due_at) < now && c.status !== "closed" && c.status !== "resolved",
-  ).length;
+  const totalCount = complaints?.length || 0;
+  const pendingCount =
+    complaints?.filter(
+      (c) => c.status === "submitted" || c.status === "assigned" || c.status === "in_progress" || c.status === "reopened"
+    ).length || 0;
+  const resolvedCount =
+    complaints?.filter((c) => c.status === "resolved" || c.status === "closed").length || 0;
+  const overdueCount =
+    complaints?.filter(
+      (c) => new Date(c.sla_due_at) < now && c.status !== "closed" && c.status !== "resolved"
+    ).length || 0;
 
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight text-[#F9FAFB]">
-              Department Maintenance Queue
-            </h1>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400">
-              {deptName}
-            </span>
+      <div>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold tracking-tight text-[#ECFDF5] font-display">
+            Staff Resolver Queue
+          </h1>
+          <span className="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[#34D399]">
+            {deptName}
+          </span>
+        </div>
+        <p className="text-xs text-[#A7F3D0]/80 mt-1">
+          Manage repair tickets assigned to your department, update fix status, and track target repair timelines.
+        </p>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div className="care-panel care-panel-hover rounded-xl p-5 space-y-2">
+          <div className="flex items-center justify-between text-[#A7F3D0]/80">
+            <span className="text-xs font-semibold uppercase tracking-wider">Queue Total</span>
+            <Wrench className="w-5 h-5 text-[#10B981]" />
           </div>
-          <p className="text-sm text-[#9CA3AF]">
-            Accept assigned complaints, track SLA deadlines, and submit repair completion updates.
-          </p>
+          <p className="text-3xl font-bold tracking-tight text-[#ECFDF5] font-display">{totalCount}</p>
+        </div>
+
+        <div className="care-panel care-panel-hover rounded-xl p-5 space-y-2">
+          <div className="flex items-center justify-between text-[#A7F3D0]/80">
+            <span className="text-xs font-semibold uppercase tracking-wider">Pending Work</span>
+            <Clock className="w-5 h-5 text-amber-400" />
+          </div>
+          <p className="text-3xl font-bold tracking-tight text-[#ECFDF5] font-display">{pendingCount}</p>
+        </div>
+
+        <div className="care-panel care-panel-hover rounded-xl p-5 space-y-2">
+          <div className="flex items-center justify-between text-[#A7F3D0]/80">
+            <span className="text-xs font-semibold uppercase tracking-wider">Resolved</span>
+            <CheckCircle2 className="w-5 h-5 text-[#34D399]" />
+          </div>
+          <p className="text-3xl font-bold tracking-tight text-[#ECFDF5] font-display">{resolvedCount}</p>
+        </div>
+
+        <div className="care-panel care-panel-hover rounded-xl p-5 space-y-2 border-red-500/30">
+          <div className="flex items-center justify-between text-red-400">
+            <span className="text-xs font-semibold uppercase tracking-wider">Overdue SLA</span>
+            <AlertTriangle className="w-5 h-5 text-red-400" />
+          </div>
+          <p className="text-3xl font-bold tracking-tight text-red-400 font-display">{overdueCount}</p>
         </div>
       </div>
 
-      {/* Summary KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-5 space-y-2">
-          <div className="flex items-center justify-between text-[#9CA3AF]">
-            <span className="text-xs font-semibold uppercase tracking-wider">Department Queue</span>
-            <Building2 className="w-5 h-5 text-blue-400" />
-          </div>
-          <p className="text-3xl font-bold tracking-tight text-[#F9FAFB]">{totalDeptCount}</p>
-        </div>
-
-        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-5 space-y-2">
-          <div className="flex items-center justify-between text-[#9CA3AF]">
-            <span className="text-xs font-semibold uppercase tracking-wider">Assigned to Me</span>
-            <UserCheck className="w-5 h-5 text-indigo-400" />
-          </div>
-          <p className="text-3xl font-bold tracking-tight text-[#F9FAFB]">{assignedToMeCount}</p>
-        </div>
-
-        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-5 space-y-2">
-          <div className="flex items-center justify-between text-[#9CA3AF]">
-            <span className="text-xs font-semibold uppercase tracking-wider">
-              Critical (4h SLA)
-            </span>
-            <ShieldAlert className="w-5 h-5 text-red-400 animate-pulse" />
-          </div>
-          <p className="text-3xl font-bold tracking-tight text-red-400">{criticalSlaCount}</p>
-        </div>
-
-        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-5 space-y-2">
-          <div className="flex items-center justify-between text-[#9CA3AF]">
-            <span className="text-xs font-semibold uppercase tracking-wider">Overdue Breaches</span>
-            <AlertTriangle className="w-5 h-5 text-amber-400" />
-          </div>
-          <p className="text-3xl font-bold tracking-tight text-amber-400">{overdueCount}</p>
-        </div>
-      </div>
-
-      {/* Queue Table */}
-      <div className="bg-[#111827] border border-[#1F2937] rounded-xl overflow-hidden shadow-xl">
-        <div className="px-6 py-4 border-b border-[#1F2937] flex items-center justify-between">
-          <h2 className="font-semibold text-base text-[#F9FAFB]">Active Complaints Queue</h2>
-          <span className="text-xs text-[#9CA3AF]">{queueList.length} tickets in queue</span>
+      {/* Complaints Queue Table */}
+      <div className="care-panel rounded-xl overflow-hidden shadow-2xl">
+        <div className="px-6 py-4 border-b border-[#1D4A38] flex items-center justify-between">
+          <h2 className="font-semibold text-base text-[#ECFDF5] font-display">Assigned Department Feed</h2>
+          <span className="text-xs text-[#A7F3D0]/80">
+            TOTAL RECORDS: {totalCount}
+          </span>
         </div>
 
         {error ? (
           <div className="p-6 text-center text-red-400 text-sm">
-            Failed to load department queue. Please refresh the page.
+            Failed to load department complaints. Please refresh.
           </div>
-        ) : queueList.length === 0 ? (
-          <div className="p-12 text-center space-y-3">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#1F2937] text-emerald-400">
-              <CheckCircle2 className="w-6 h-6" />
-            </div>
-            <h3 className="text-base font-medium text-[#F9FAFB]">Department Queue Clear!</h3>
-            <p className="text-xs text-[#9CA3AF]">
-              There are currently no active complaints assigned to your department.
-            </p>
+        ) : !complaints || complaints.length === 0 ? (
+          <div className="p-12 text-center text-[#A7F3D0]/70">
+            No complaints currently assigned to your department queue.
           </div>
         ) : (
-          <div className="divide-y divide-[#1F2937]">
-            {queueList.map((item) => {
+          <div className="divide-y divide-[#1D4A38]">
+            {complaints.map((item) => {
               const reporterName = Array.isArray(item.reporter)
                 ? item.reporter[0]?.full_name
                 : (item.reporter as { full_name: string } | null)?.full_name || "Student";
-              const catName = Array.isArray(item.categories)
-                ? item.categories[0]?.name
-                : (item.categories as { name: string } | null)?.name || "General";
-
               const isOverdue =
-                new Date(item.sla_due_at) < now &&
-                item.status !== "closed" &&
-                item.status !== "resolved";
+                new Date(item.sla_due_at) < now && item.status !== "closed" && item.status !== "resolved";
 
               return (
                 <div
                   key={item.id}
-                  className={`p-5 hover:bg-[#1F2937]/50 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                    isOverdue ? "border-l-4 border-amber-500 bg-amber-500/5" : ""
+                  className={`p-5 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                    isOverdue ? "bg-red-500/5 hover:bg-red-500/10" : "hover:bg-[#153326]/40"
                   }`}
                 >
                   <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-[#1F2937] text-[#6366F1]">
+                      <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[#34D399]">
                         {item.ticket_number}
                       </span>
                       <StatusBadge status={item.status} />
                       <PriorityBadge priority={item.priority} />
                       {isOverdue && (
-                        <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3" />
-                          OVERDUE
+                        <span className="px-2 py-0.5 text-xs font-bold rounded bg-red-500/20 border border-red-500/40 text-red-400 animate-pulse">
+                          OVERDUE SLA
                         </span>
                       )}
                     </div>
 
-                    <h3 className="font-semibold text-base text-[#F9FAFB]">{item.title}</h3>
+                    <h3 className="font-semibold text-base text-[#ECFDF5] font-display">
+                      {item.title}
+                    </h3>
 
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-[#9CA3AF]">
-                      <span>
-                        Reporter: <strong className="text-[#F9FAFB]">{reporterName}</strong>
-                      </span>
-                      <span>Category: {catName}</span>
-                      <span>Location: {item.location}</span>
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-[#A7F3D0]/80">
                       <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-amber-400" />
-                        SLA Due:{" "}
-                        {new Date(item.sla_due_at).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}{" "}
-                        ({new Date(item.sla_due_at).toLocaleDateString()})
+                        <User className="w-3.5 h-3.5 text-[#10B981]" />
+                        Reporter: {reporterName}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Building2 className="w-3.5 h-3.5 text-[#10B981]" />
+                        Location: {item.location}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3.5 h-3.5 text-[#10B981]" />
+                        Fix Target: {new Date(item.sla_due_at).toLocaleString()}
                       </span>
                     </div>
                   </div>
 
                   <Link
                     href={`/staff/complaints/${item.id}`}
-                    className="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-[#6366F1] hover:bg-[#6366F1]/90 text-white text-xs font-medium transition-all shrink-0"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-[#10B981] hover:underline shrink-0"
                   >
-                    <Wrench className="w-3.5 h-3.5" />
-                    <span>Manage Ticket</span>
-                    <ChevronRight className="w-4 h-4 ml-0.5" />
+                    <span>Update Status & Logs</span>
+                    <ChevronRight className="w-4 h-4" />
                   </Link>
                 </div>
               );
@@ -229,65 +213,35 @@ export default async function StaffDashboardPage() {
 
 function StatusBadge({ status }: { status: string }) {
   const statusConfig: Record<string, { label: string; bg: string; text: string }> = {
-    submitted: {
-      label: "Unassigned",
-      bg: "bg-blue-500/10 border-blue-500/20",
-      text: "text-blue-400",
-    },
-    assigned: {
-      label: "Assigned",
-      bg: "bg-indigo-500/10 border-indigo-500/20",
-      text: "text-indigo-400",
-    },
-    in_progress: {
-      label: "In Progress",
-      bg: "bg-amber-500/10 border-amber-500/20",
-      text: "text-amber-400",
-    },
-    resolved: {
-      label: "Resolved",
-      bg: "bg-emerald-500/10 border-emerald-500/20",
-      text: "text-emerald-400",
-    },
-    closed: { label: "Closed", bg: "bg-slate-500/10 border-slate-500/20", text: "text-slate-400" },
-    reopened: { label: "Reopened", bg: "bg-rose-500/10 border-rose-500/20", text: "text-rose-400" },
+    submitted: { label: "Submitted", bg: "bg-blue-500/10 border-blue-500/20", text: "text-blue-300" },
+    assigned: { label: "Assigned", bg: "bg-indigo-500/10 border-indigo-500/20", text: "text-indigo-300" },
+    in_progress: { label: "In Progress", bg: "bg-amber-500/10 border-amber-500/20", text: "text-amber-300" },
+    resolved: { label: "Resolved", bg: "bg-emerald-500/10 border-emerald-500/20", text: "text-[#34D399]" },
+    closed: { label: "Closed", bg: "bg-slate-500/10 border-slate-500/20", text: "text-slate-300" },
+    reopened: { label: "Reopened", bg: "bg-rose-500/10 border-rose-500/20", text: "text-rose-300" },
   };
 
   const config = statusConfig[status] || statusConfig.submitted;
 
   return (
-    <span
-      className={`px-2.5 py-0.5 text-xs font-medium rounded-full border ${config.bg} ${config.text}`}
-    >
+    <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full border ${config.bg} ${config.text}`}>
       {config.label}
     </span>
   );
 }
 
 function PriorityBadge({ priority }: { priority: string }) {
-  const priorityConfig: Record<
-    string,
-    { label: string; bg: string; text: string; pulse?: boolean }
-  > = {
-    low: { label: "Low", bg: "bg-slate-500/10 border-slate-500/20", text: "text-slate-400" },
-    medium: { label: "Medium", bg: "bg-blue-500/10 border-blue-500/20", text: "text-blue-400" },
-    high: { label: "High", bg: "bg-amber-500/10 border-amber-500/20", text: "text-amber-400" },
-    critical: {
-      label: "Critical (4h SLA)",
-      bg: "bg-red-500/20 border-red-500/40",
-      text: "text-red-400",
-      pulse: true,
-    },
+  const priorityConfig: Record<string, { label: string; bg: string; text: string }> = {
+    low: { label: "Low", bg: "bg-slate-500/10 border-slate-500/20", text: "text-slate-300" },
+    medium: { label: "Medium", bg: "bg-blue-500/10 border-blue-500/20", text: "text-blue-300" },
+    high: { label: "High", bg: "bg-amber-500/10 border-amber-500/20", text: "text-amber-300" },
+    critical: { label: "Critical", bg: "bg-red-500/20 border-red-500/40", text: "text-red-300" },
   };
 
   const config = priorityConfig[priority] || priorityConfig.medium;
 
   return (
-    <span
-      className={`px-2.5 py-0.5 text-xs font-medium rounded-full border ${config.bg} ${config.text} ${
-        config.pulse ? "animate-pulse shadow-sm shadow-red-500/50" : ""
-      }`}
-    >
+    <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full border ${config.bg} ${config.text}`}>
       {config.label}
     </span>
   );

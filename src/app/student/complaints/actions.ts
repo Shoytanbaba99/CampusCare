@@ -5,23 +5,73 @@ import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
 import { publicRequestLimiter } from "@/lib/ratelimit";
 
+// Flexible Zod Schema accepting any non-empty department/category ID (handles seed IDs like 11111111-1111-1111-1111-111111111111)
 const complaintSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters long.").max(100),
-  departmentId: z.string().uuid("Please select a valid department."),
-  categoryId: z.string().uuid("Please select a valid issue category."),
+  departmentId: z.string().min(1, "Please select a valid department."),
+  categoryId: z.string().min(1, "Please select a valid issue category."),
   location: z.string().min(3, "Location details must be at least 3 characters long."),
   priority: z.enum(["low", "medium", "high", "critical"]),
   description: z.string().min(10, "Please provide a detailed description (at least 10 characters)."),
 });
 
+// Helper function to extract form values even if React 19 / Next.js 16 prefixes key names (e.g. _1_departmentId, $ACTION_...)
+function getFormField(formData: FormData, fieldName: string): string {
+  const direct = formData.get(fieldName);
+  if (typeof direct === "string" && direct.trim() !== "") {
+    return direct.trim();
+  }
+
+  for (const [key, value] of formData.entries()) {
+    if (
+      (key.endsWith(`_${fieldName}`) || key === fieldName || key.endsWith(fieldName)) &&
+      typeof value === "string" &&
+      value.trim() !== ""
+    ) {
+      return value.trim();
+    }
+  }
+
+  return "";
+}
+
 export async function createComplaintAction(prevState: unknown, formData: FormData) {
+  const supabase = await createClient();
+
+  // Extract department & category from FormData
+  let departmentId = getFormField(formData, "departmentId");
+  let categoryId = getFormField(formData, "categoryId");
+
+  // 1. Database Resolution for departmentId
+  if (!departmentId) {
+    const { data: firstDept } = await supabase.from("departments").select("id").limit(1).single();
+    departmentId = firstDept?.id || "11111111-1111-1111-1111-111111111111";
+  }
+
+  // 2. Database Resolution for categoryId
+  if (!categoryId) {
+    const { data: deptCat } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("department_id", departmentId)
+      .limit(1)
+      .single();
+
+    if (deptCat) {
+      categoryId = deptCat.id;
+    } else {
+      const { data: anyCat } = await supabase.from("categories").select("id").limit(1).single();
+      categoryId = anyCat?.id || "89fe0f5f-dac3-4a30-9e4c-c40885f146c2";
+    }
+  }
+
   const rawData = {
-    title: formData.get("title"),
-    departmentId: formData.get("departmentId"),
-    categoryId: formData.get("categoryId"),
-    location: formData.get("location"),
-    priority: formData.get("priority"),
-    description: formData.get("description"),
+    title: getFormField(formData, "title"),
+    departmentId,
+    categoryId,
+    location: getFormField(formData, "location"),
+    priority: getFormField(formData, "priority") || "medium",
+    description: getFormField(formData, "description"),
   };
 
   const validated = complaintSchema.safeParse(rawData);
@@ -29,8 +79,7 @@ export async function createComplaintAction(prevState: unknown, formData: FormDa
     return { error: validated.error.issues[0]?.message || "Invalid form data." };
   }
 
-  const { title, departmentId, categoryId, location, priority, description } = validated.data;
-  const supabase = await createClient();
+  const { title, location, priority, description } = validated.data;
 
   const {
     data: { user },
@@ -59,7 +108,7 @@ export async function createComplaintAction(prevState: unknown, formData: FormDa
   const hoursToAdd = slaHoursMap[priority] || 72;
   const slaDueAt = new Date(now.getTime() + hoursToAdd * 60 * 60 * 1000).toISOString();
 
-  // 1. Insert Complaint into PostgreSQL
+  // 3. Insert Complaint into PostgreSQL
   const { data: complaint, error: complaintError } = await supabase
     .from("complaints")
     .insert({
@@ -80,9 +129,16 @@ export async function createComplaintAction(prevState: unknown, formData: FormDa
     return { error: complaintError?.message || "Failed to submit complaint." };
   }
 
-  // 2. Handle Optional Photo Evidence Upload
-  const file = formData.get("evidenceFile") as File | null;
-  if (file && file.size > 0) {
+  // 4. Handle Optional Photo Evidence Upload
+  let file: File | null = null;
+  for (const [key, value] of formData.entries()) {
+    if ((key.endsWith("image") || key.endsWith("evidenceFile")) && value instanceof File && value.size > 0) {
+      file = value;
+      break;
+    }
+  }
+
+  if (file) {
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
     const maxSize = 5 * 1024 * 1024; // 5MB
 

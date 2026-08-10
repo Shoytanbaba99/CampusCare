@@ -110,46 +110,46 @@ export default async function AdminDashboardPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-[#F9FAFB]">
+        <h1 className="text-2xl font-bold tracking-tight text-[#ECFDF5] font-display">
           Admin Command Dashboard & Telemetry
         </h1>
-        <p className="text-sm text-[#9CA3AF]">
-          System-wide operational KPIs, SLA compliance rate, and master ticket dispatch controls.
+        <p className="text-xs text-[#A7F3D0]/80">
+          System-wide operational KPIs, target repair compliance, and master ticket dispatch controls.
         </p>
       </div>
 
       {/* Operational KPI Telemetry Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-5 space-y-2">
-          <div className="flex items-center justify-between text-[#9CA3AF]">
+        <div className="care-panel care-panel-hover rounded-xl p-5 space-y-2">
+          <div className="flex items-center justify-between text-[#A7F3D0]/80">
             <span className="text-xs font-semibold uppercase tracking-wider">Total Campus Tickets</span>
-            <FileText className="w-5 h-5 text-[#6366F1]" />
+            <FileText className="w-5 h-5 text-[#10B981]" />
           </div>
-          <p className="text-3xl font-bold tracking-tight text-[#F9FAFB]">{totalCount}</p>
+          <p className="text-3xl font-bold tracking-tight text-[#ECFDF5] font-display">{totalCount}</p>
         </div>
 
-        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-5 space-y-2">
-          <div className="flex items-center justify-between text-[#9CA3AF]">
+        <div className="care-panel care-panel-hover rounded-xl p-5 space-y-2">
+          <div className="flex items-center justify-between text-[#A7F3D0]/80">
             <span className="text-xs font-semibold uppercase tracking-wider">Active Pipeline</span>
             <Clock className="w-5 h-5 text-amber-400" />
           </div>
-          <p className="text-3xl font-bold tracking-tight text-[#F9FAFB]">{activeCount}</p>
+          <p className="text-3xl font-bold tracking-tight text-[#ECFDF5] font-display">{activeCount}</p>
         </div>
 
-        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-5 space-y-2">
-          <div className="flex items-center justify-between text-[#9CA3AF]">
+        <div className="care-panel care-panel-hover rounded-xl p-5 space-y-2">
+          <div className="flex items-center justify-between text-[#A7F3D0]/80">
             <span className="text-xs font-semibold uppercase tracking-wider">Resolved Rate</span>
-            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+            <CheckCircle2 className="w-5 h-5 text-[#34D399]" />
           </div>
-          <p className="text-3xl font-bold tracking-tight text-emerald-400">{resolvedCount}</p>
+          <p className="text-3xl font-bold tracking-tight text-[#34D399] font-display">{resolvedCount}</p>
         </div>
 
-        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-5 space-y-2">
-          <div className="flex items-center justify-between text-[#9CA3AF]">
-            <span className="text-xs font-semibold uppercase tracking-wider">SLA Compliance Rate</span>
-            <TrendingUp className="w-5 h-5 text-indigo-400" />
+        <div className="care-panel care-panel-hover rounded-xl p-5 space-y-2">
+          <div className="flex items-center justify-between text-[#A7F3D0]/80">
+            <span className="text-xs font-semibold uppercase tracking-wider">Target Repair Compliance</span>
+            <TrendingUp className="w-5 h-5 text-[#10B981]" />
           </div>
-          <p className="text-3xl font-bold tracking-tight text-indigo-400">{slaComplianceRate}%</p>
+          <p className="text-3xl font-bold tracking-tight text-[#34D399] font-display">{slaComplianceRate}%</p>
         </div>
       </div>
 

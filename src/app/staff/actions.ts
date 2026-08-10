@@ -5,31 +5,21 @@ import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
 
 const acceptSchema = z.object({
-  complaintId: z.string().uuid(),
+  complaintId: z.string().min(1),
 });
 
 const noteSchema = z.object({
-  complaintId: z.string().uuid(),
+  complaintId: z.string().min(1),
   noteText: z.string().min(3, "Progress note must be at least 3 characters long."),
   isInternal: z.coerce.boolean().optional(),
 });
 
 const resolveSchema = z.object({
-  complaintId: z.string().uuid(),
+  complaintId: z.string().min(1),
   resolutionNotes: z.string().min(5, "Please provide resolution notes explaining repair actions."),
 });
 
-export async function acceptTicketAction(prevState: unknown, formData: FormData) {
-  const rawData = {
-    complaintId: formData.get("complaintId"),
-  };
-
-  const validated = acceptSchema.safeParse(rawData);
-  if (!validated.success) {
-    return { error: "Invalid ticket parameters." };
-  }
-
-  const { complaintId } = validated.data;
+export async function updateComplaintStatusAction(complaintId: string, newStatus: string, assignedStaffId?: string) {
   const supabase = await createClient();
 
   const {
@@ -40,34 +30,39 @@ export async function acceptTicketAction(prevState: unknown, formData: FormData)
     return { error: "Unauthenticated." };
   }
 
-  // 1. Update Complaint status to 'in_progress' and set assigned_staff_id
+  const updatePayload: Record<string, unknown> = {
+    status: newStatus,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (assignedStaffId) {
+    updatePayload.assigned_staff_id = assignedStaffId;
+  }
+  if (newStatus === "resolved" || newStatus === "closed") {
+    updatePayload.resolved_at = new Date().toISOString();
+  }
+
   const { error: updateError } = await supabase
     .from("complaints")
-    .update({
-      status: "in_progress",
-      assigned_staff_id: user.id,
-      updated_at: new Date().toISOString(),
-    })
+    .update(updatePayload)
     .eq("id", complaintId);
 
   if (updateError) {
     return { error: updateError.message };
   }
 
-  // 2. Append Timeline note
   await supabase.from("progress_notes").insert({
     complaint_id: complaintId,
     author_id: user.id,
-    note_text: "Ticket accepted by Staff Resolver. Work is now In Progress.",
+    note_text: `Status updated to ${newStatus.toUpperCase()}${assignedStaffId ? " and assigned to staff member." : "."}`,
     is_internal: false,
   });
 
-  // 3. Log Audit event
   await supabase.from("audit_logs").insert({
     complaint_id: complaintId,
     actor_id: user.id,
-    action: "TICKET_ACCEPTED_STAFF",
-    new_state: { status: "in_progress", assigned_staff_id: user.id },
+    action: "STATUS_UPDATED",
+    new_state: updatePayload,
   });
 
   revalidatePath("/staff/dashboard");
@@ -75,19 +70,7 @@ export async function acceptTicketAction(prevState: unknown, formData: FormData)
   return { success: true };
 }
 
-export async function appendProgressNoteAction(prevState: unknown, formData: FormData) {
-  const rawData = {
-    complaintId: formData.get("complaintId"),
-    noteText: formData.get("noteText"),
-    isInternal: formData.get("isInternal") === "on",
-  };
-
-  const validated = noteSchema.safeParse(rawData);
-  if (!validated.success) {
-    return { error: validated.error.issues[0]?.message || "Invalid note text." };
-  }
-
-  const { complaintId, noteText, isInternal } = validated.data;
+export async function addProgressNoteAction(complaintId: string, noteText: string, isInternal: boolean = false) {
   const supabase = await createClient();
 
   const {
@@ -113,6 +96,36 @@ export async function appendProgressNoteAction(prevState: unknown, formData: For
   return { success: true };
 }
 
+export async function acceptTicketAction(prevState: unknown, formData: FormData) {
+  const rawData = {
+    complaintId: formData.get("complaintId"),
+  };
+
+  const validated = acceptSchema.safeParse(rawData);
+  if (!validated.success) {
+    return { error: "Invalid ticket parameters." };
+  }
+
+  const { complaintId } = validated.data;
+  return updateComplaintStatusAction(complaintId, "in_progress");
+}
+
+export async function appendProgressNoteAction(prevState: unknown, formData: FormData) {
+  const rawData = {
+    complaintId: formData.get("complaintId"),
+    noteText: formData.get("noteText"),
+    isInternal: formData.get("isInternal") === "on",
+  };
+
+  const validated = noteSchema.safeParse(rawData);
+  if (!validated.success) {
+    return { error: validated.error.issues[0]?.message || "Invalid note text." };
+  }
+
+  const { complaintId, noteText, isInternal = false } = validated.data;
+  return addProgressNoteAction(complaintId, noteText, isInternal);
+}
+
 export async function resolveTicketAction(prevState: unknown, formData: FormData) {
   const rawData = {
     complaintId: formData.get("complaintId"),
@@ -125,73 +138,22 @@ export async function resolveTicketAction(prevState: unknown, formData: FormData
   }
 
   const { complaintId, resolutionNotes } = validated.data;
-  const supabase = await createClient();
+  const res = await updateComplaintStatusAction(complaintId, "resolved");
+  if (res?.error) return res;
 
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    return { error: "Unauthenticated." };
+  if (user) {
+    await supabase.from("progress_notes").insert({
+      complaint_id: complaintId,
+      author_id: user.id,
+      note_text: `Resolution Summary: ${resolutionNotes}`,
+      is_internal: false,
+    });
   }
 
-  // 1. Update Complaint status to 'resolved'
-  const { error: updateError } = await supabase
-    .from("complaints")
-    .update({
-      status: "resolved",
-      resolved_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", complaintId);
-
-  if (updateError) {
-    return { error: updateError.message };
-  }
-
-  // 2. Append resolution progress note
-  await supabase.from("progress_notes").insert({
-    complaint_id: complaintId,
-    author_id: user.id,
-    note_text: `Resolution Summary: ${resolutionNotes}`,
-    is_internal: false,
-  });
-
-  // 3. Handle Optional Repair Proof Photo Upload
-  const file = formData.get("repairProofFile") as File | null;
-  if (file && file.size > 0) {
-    const fileExt = file.name.split(".").pop();
-    const filePath = `${user.id}/repair_${complaintId}_${Date.now()}.${fileExt}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("complaint-evidence")
-      .upload(filePath, file);
-
-    if (!uploadError) {
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("complaint-evidence").getPublicUrl(filePath);
-
-      await supabase.from("attachments").insert({
-        complaint_id: complaintId,
-        uploader_id: user.id,
-        file_url: publicUrl,
-        file_type: file.type,
-        file_size_bytes: file.size,
-        attachment_type: "repair_proof",
-      });
-    }
-  }
-
-  // 4. Log Audit Ledger
-  await supabase.from("audit_logs").insert({
-    complaint_id: complaintId,
-    actor_id: user.id,
-    action: "TICKET_RESOLVED_STAFF",
-    new_state: { status: "resolved", resolution_notes: resolutionNotes },
-  });
-
-  revalidatePath("/staff/dashboard");
-  revalidatePath(`/staff/complaints/${complaintId}`);
   return { success: true };
 }

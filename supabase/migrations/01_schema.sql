@@ -230,6 +230,11 @@ CREATE POLICY "Authenticated users can view departments"
     ON public.departments FOR SELECT
     TO authenticated USING (true);
 
+CREATE POLICY "Admins can insert departments"
+    ON public.departments FOR INSERT
+    TO authenticated
+    WITH CHECK (public.get_user_role(auth.uid()) = 'admin');
+
 CREATE POLICY "Authenticated users can view categories"
     ON public.categories FOR SELECT
     TO authenticated USING (true);
