@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
+import { publicRequestLimiter } from "@/lib/ratelimit";
 
 const complaintSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters long.").max(100),
@@ -37,6 +38,14 @@ export async function createComplaintAction(prevState: unknown, formData: FormDa
 
   if (!user) {
     return { error: "Unauthenticated. Please log in again." };
+  }
+
+  // Rate Limiting Check: Max 3 complaint submissions per 60 seconds per user
+  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+    const { success } = await publicRequestLimiter.limit(`create_complaint_${user.id}`);
+    if (!success) {
+      return { error: "Rate limit exceeded. Please wait a minute before submitting another complaint." };
+    }
   }
 
   // Calculate SLA Due Timestamp based on Priority level
