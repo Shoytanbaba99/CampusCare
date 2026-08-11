@@ -5,19 +5,30 @@ import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
 
 const reassignSchema = z.object({
-  complaintId: z.string().uuid(),
-  targetDepartmentId: z.string().uuid(),
+  complaintId: z.string().min(1, "Complaint ID is required"),
+  targetDepartmentId: z.string().min(1, "Department ID is required"),
   targetStaffId: z.string().optional().nullable(),
   priority: z.enum(["low", "medium", "high", "critical"]),
 });
 
+function getFormField(formData: FormData, fieldName: string): string {
+  const direct = formData.get(fieldName);
+  if (typeof direct === "string" && direct.trim() !== "") return direct.trim();
+  for (const [key, value] of formData.entries()) {
+    if ((key.endsWith(`_${fieldName}`) || key === fieldName || key.endsWith(fieldName)) && typeof value === "string") {
+      return value.trim();
+    }
+  }
+  return "";
+}
+
 export async function reassignTicketAction(prevState: unknown, formData: FormData) {
-  const rawStaffId = formData.get("targetStaffId");
+  const rawStaffId = getFormField(formData, "staffId") || getFormField(formData, "targetStaffId");
   const rawData = {
-    complaintId: formData.get("complaintId"),
-    targetDepartmentId: formData.get("targetDepartmentId"),
+    complaintId: getFormField(formData, "complaintId"),
+    targetDepartmentId: getFormField(formData, "departmentId") || getFormField(formData, "targetDepartmentId"),
     targetStaffId: rawStaffId === "unassigned" || !rawStaffId ? null : rawStaffId,
-    priority: formData.get("priority"),
+    priority: getFormField(formData, "priority") || "medium",
   };
 
   const validated = reassignSchema.safeParse(rawData);

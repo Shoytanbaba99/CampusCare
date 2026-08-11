@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useActionState } from "react";
+import { useState, useEffect, useActionState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -18,7 +18,8 @@ import {
   Wrench,
   Laptop,
   Droplet,
-  CheckCircle2,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 
 interface Department {
@@ -41,41 +42,35 @@ interface ComplaintFormProps {
 export default function ComplaintFormClient({ departments, categories }: ComplaintFormProps) {
   const [state, formAction, isPending] = useActionState(createComplaintAction, null);
 
-  // Initialize selected department with first department ID from server props
-  const defaultDeptId = departments[0]?.id || "";
-  const [selectedDeptId, setSelectedDeptId] = useState<string>(defaultDeptId);
+  const [selectedDeptId, setSelectedDeptId] = useState<string>("");
+  const [isDeptOpen, setIsDeptOpen] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [isCatOpen, setIsCatOpen] = useState(false);
 
-  // Active department ID fallback
-  const activeDeptId = selectedDeptId || defaultDeptId;
+  // Derived state computed directly during render (prevents React 19 cascading render warnings)
+  const activeDeptId = (selectedDeptId && departments.some((d) => d.id === selectedDeptId))
+    ? selectedDeptId
+    : (departments[0]?.id || "");
+  const activeDept = departments.find((d) => d.id === activeDeptId) || departments[0];
 
-  // Filter categories based on selected department
+  // Filter categories based on active department
   const filteredCategories = categories.filter((cat) => cat.department_id === activeDeptId);
   const displayCategories = filteredCategories.length > 0 ? filteredCategories : categories;
 
-  const defaultCatId = displayCategories[0]?.id || categories[0]?.id || "";
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>(defaultCatId);
+  const activeCatId = (selectedCategoryId && displayCategories.some((c) => c.id === selectedCategoryId))
+    ? selectedCategoryId
+    : (displayCategories[0]?.id || "");
+  const activeCat = displayCategories.find((c) => c.id === activeCatId) || displayCategories[0];
+
   const [selectedPriority, setSelectedPriority] = useState<string>("medium");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
-  const activeCatId = selectedCategoryId || displayCategories[0]?.id || defaultCatId;
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (state?.error) {
       toast.error(state.error);
     }
   }, [state]);
-
-  useEffect(() => {
-    if (departments.length > 0 && (!selectedDeptId || !departments.some((d) => d.id === selectedDeptId))) {
-      setSelectedDeptId(departments[0].id);
-    }
-  }, [departments, selectedDeptId]);
-
-  useEffect(() => {
-    if (displayCategories.length > 0 && (!selectedCategoryId || !displayCategories.some((c) => c.id === selectedCategoryId))) {
-      setSelectedCategoryId(displayCategories[0].id);
-    }
-  }, [displayCategories, selectedCategoryId]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -102,7 +97,7 @@ export default function ComplaintFormClient({ departments, categories }: Complai
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6 pb-12">
       {/* Header Back Navigation */}
       <div className="flex items-center gap-4">
         <Link
@@ -129,108 +124,97 @@ export default function ComplaintFormClient({ departments, categories }: Complai
         )}
 
         <form action={formAction} className="space-y-7">
-          {/* Department Selection Cards & Select */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Animated Department Dropdown */}
+            <div className="space-y-3 relative">
               <label className="block text-base font-bold text-[#A7F3D0]">
-                1. Select Maintenance Department *
+                1. Maintenance Department *
               </label>
-              <span className="text-xs text-[#34D399]">Click card to select</span>
-            </div>
+              <input type="hidden" name="departmentId" value={activeDeptId} />
+              
+              <button
+                type="button"
+                onClick={() => { setIsDeptOpen(!isDeptOpen); setIsCatOpen(false); }}
+                className="w-full flex items-center justify-between px-5 py-4 bg-[#07130E] border border-[#1D4A38] rounded-xl text-left hover:border-[#10B981]/80 transition-colors focus:ring-2 focus:ring-[#10B981] focus:outline-none group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="text-[#10B981]">
+                    {activeDept ? getDeptIcon(activeDept.code) : <Building2 className="w-5 h-5" />}
+                  </div>
+                  <span className="text-[#ECFDF5] font-bold text-base">
+                    {activeDept ? activeDept.name : "Select Department"}
+                  </span>
+                </div>
+                <ChevronDown className={`w-5 h-5 text-[#A7F3D0]/60 transition-transform duration-300 ${isDeptOpen ? "rotate-180 text-[#10B981]" : "group-hover:text-[#10B981]"}`} />
+              </button>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              {departments.map((dept) => {
-                const isSelected = activeDeptId === dept.id;
-                const catCount = categories.filter((c) => c.department_id === dept.id).length;
-
-                return (
-                  <button
-                    key={dept.id}
-                    type="button"
-                    onClick={() => setSelectedDeptId(dept.id)}
-                    className={`p-4.5 rounded-2xl border text-left flex items-start justify-between gap-3 transition-all btn-care ${
-                      isSelected
-                        ? "bg-[#10B981]/15 border-[#10B981] text-[#ECFDF5] shadow-lg shadow-emerald-500/15"
-                        : "bg-[#07130E] border-[#1D4A38] text-[#A7F3D0]/80 hover:border-[#10B981]/60"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3.5">
-                      <div
-                        className={`w-11 h-11 rounded-xl flex items-center justify-center ${
-                          isSelected
-                            ? "bg-[#10B981] text-white"
-                            : "bg-[#153326] text-[#10B981]"
-                        }`}
-                      >
-                        {getDeptIcon(dept.code)}
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-base text-[#ECFDF5] font-display">{dept.name}</h4>
-                        <span className="text-xs text-[#A7F3D0]/70">
-                          {catCount > 0 ? `${catCount} issue types` : "General service"}
+              {/* Dropdown Menu */}
+              <div className={`absolute z-30 w-full mt-2 bg-[#0E2219] border border-[#1D4A38] rounded-xl shadow-xl overflow-hidden transition-all duration-200 origin-top ${isDeptOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}`}>
+                <div className="max-h-60 overflow-y-auto">
+                  {departments.map((dept) => (
+                    <button
+                      key={dept.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedDeptId(dept.id);
+                        setIsDeptOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-5 py-3.5 text-left hover:bg-[#153326] transition-colors border-b border-[#1D4A38]/50 last:border-0"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="text-[#10B981] opacity-80">{getDeptIcon(dept.code)}</div>
+                        <span className={`text-base ${activeDeptId === dept.id ? "text-[#10B981] font-bold" : "text-[#ECFDF5]"}`}>
+                          {dept.name}
                         </span>
                       </div>
-                    </div>
-                    {isSelected && <CheckCircle2 className="w-5 h-5 text-[#10B981] shrink-0" />}
-                  </button>
-                );
-              })}
+                      {activeDeptId === dept.id && <Check className="w-5 h-5 text-[#10B981]" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            {/* Native Form Select (Always synchronized with activeDeptId) */}
-            <select
-              name="departmentId"
-              value={activeDeptId}
-              onChange={(e) => setSelectedDeptId(e.target.value)}
-              className="w-full px-4 py-3 bg-[#07130E] border border-[#1D4A38] rounded-xl text-sm text-[#ECFDF5] focus:outline-none focus:ring-2 focus:ring-[#10B981]"
-            >
-              {departments.map((d) => (
-                <option key={d.id} value={d.id} className="bg-[#0E2219]">
-                  {d.name} ({d.code})
-                </option>
-              ))}
-            </select>
-          </div>
+            {/* Animated Category Dropdown */}
+            <div className="space-y-3 relative">
+              <label className="block text-base font-bold text-[#A7F3D0]">
+                2. Issue Category *
+              </label>
+              <input type="hidden" name="categoryId" value={activeCatId} />
+              
+              <button
+                type="button"
+                onClick={() => { setIsCatOpen(!isCatOpen); setIsDeptOpen(false); }}
+                className="w-full flex items-center justify-between px-5 py-4 bg-[#07130E] border border-[#1D4A38] rounded-xl text-left hover:border-[#10B981]/80 transition-colors focus:ring-2 focus:ring-[#10B981] focus:outline-none group"
+              >
+                <span className="text-[#ECFDF5] font-bold text-base truncate pr-4">
+                  {activeCat ? activeCat.name : "Select Issue Type"}
+                </span>
+                <ChevronDown className={`w-5 h-5 text-[#A7F3D0]/60 transition-transform duration-300 shrink-0 ${isCatOpen ? "rotate-180 text-[#10B981]" : "group-hover:text-[#10B981]"}`} />
+              </button>
 
-          {/* Issue Category Selection */}
-          <div className="space-y-3">
-            <label className="block text-base font-bold text-[#A7F3D0]">
-              2. Select Issue Category *
-            </label>
-            <div className="flex flex-wrap gap-2.5">
-              {displayCategories.map((cat) => {
-                const isSelected = activeCatId === cat.id;
-
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => setSelectedCategoryId(cat.id)}
-                    className={`px-4 py-2.5 rounded-xl border text-sm font-semibold btn-care ${
-                      isSelected
-                        ? "bg-[#10B981] border-[#10B981] text-white shadow-md shadow-emerald-500/20 font-bold"
-                        : "bg-[#07130E] border-[#1D4A38] text-[#A7F3D0]/80 hover:border-[#10B981]"
-                    }`}
-                  >
-                    {cat.name}
-                  </button>
-                );
-              })}
+              {/* Dropdown Menu */}
+              <div className={`absolute z-20 w-full mt-2 bg-[#0E2219] border border-[#1D4A38] rounded-xl shadow-xl overflow-hidden transition-all duration-200 origin-top ${isCatOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}`}>
+                <div className="max-h-60 overflow-y-auto">
+                  {displayCategories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedCategoryId(cat.id);
+                        setIsCatOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-5 py-3.5 text-left hover:bg-[#153326] transition-colors border-b border-[#1D4A38]/50 last:border-0"
+                    >
+                      <span className={`text-base ${activeCatId === cat.id ? "text-[#10B981] font-bold" : "text-[#ECFDF5]"}`}>
+                        {cat.name}
+                      </span>
+                      {activeCatId === cat.id && <Check className="w-5 h-5 text-[#10B981]" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-
-            {/* Native Form Select for Category */}
-            <select
-              name="categoryId"
-              value={activeCatId}
-              onChange={(e) => setSelectedCategoryId(e.target.value)}
-              className="w-full px-4 py-3 bg-[#07130E] border border-[#1D4A38] rounded-xl text-sm text-[#ECFDF5] focus:outline-none focus:ring-2 focus:ring-[#10B981]"
-            >
-              {displayCategories.map((c) => (
-                <option key={c.id} value={c.id} className="bg-[#0E2219]">
-                  {c.name}
-                </option>
-              ))}
-            </select>
           </div>
 
           {/* Title */}
@@ -289,10 +273,10 @@ export default function ComplaintFormClient({ departments, categories }: Complai
                   key={p.id}
                   type="button"
                   onClick={() => setSelectedPriority(p.id)}
-                  className={`py-3 px-3 rounded-xl border text-center font-bold text-xs sm:text-sm btn-care ${
+                  className={`py-3 px-3 rounded-xl border text-center font-bold text-xs sm:text-sm btn-care transition-all ${
                     selectedPriority === p.id
-                      ? "bg-[#10B981] border-[#10B981] text-white shadow-md shadow-emerald-500/20"
-                      : "bg-[#07130E] border-[#1D4A38] text-[#A7F3D0]/80"
+                      ? "bg-[#10B981] border-[#10B981] text-[#042014] shadow-md shadow-emerald-500/20"
+                      : "bg-[#07130E] border-[#1D4A38] text-[#A7F3D0]/80 hover:border-[#10B981]/50"
                   }`}
                 >
                   {p.label}
@@ -324,6 +308,7 @@ export default function ComplaintFormClient({ departments, categories }: Complai
             </label>
             <div className="relative border-2 border-dashed border-[#1D4A38] hover:border-[#10B981] rounded-2xl p-7 text-center transition-colors bg-[#07130E]">
               <input
+                ref={fileInputRef}
                 type="file"
                 name="image"
                 accept="image/*"
@@ -342,8 +327,12 @@ export default function ComplaintFormClient({ departments, categories }: Complai
                   <button
                     type="button"
                     onClick={(e) => {
+                      e.preventDefault();
                       e.stopPropagation();
                       setPreviewUrl(null);
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = "";
+                      }
                     }}
                     className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 shadow-md hover:bg-red-600 z-20"
                   >
@@ -360,7 +349,7 @@ export default function ComplaintFormClient({ departments, categories }: Complai
             </div>
           </div>
 
-          {/* Submit Action Button (WCAG AAA High Contrast Text) */}
+          {/* Submit Action Button */}
           <button
             type="submit"
             disabled={isPending}
