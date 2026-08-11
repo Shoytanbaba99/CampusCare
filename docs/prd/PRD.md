@@ -1,9 +1,22 @@
-# Product Requirements Document (PRD)
+# Product Requirements Document (PRD): CampusCare
+### Centralized University Complaint Management System
 
-## Project Name: CampusCare (Centralized University Complaint Management System)
-**Document Version:** 1.1.0  
-**Status:** Approved Specification  
-**Target Architecture:** Next.js (App Router), TypeScript, Supabase (PostgreSQL, Auth, Storage), Tailwind CSS, Shadcn UI, Zod  
+![UITS Logo](file:///mnt/Shared/Projects/Github/CampusCare/docs/srs/uits_logo.png)
+
+**University:** University of Information Technology and Sciences (UITS)  
+**Department:** Department of Computer Science and Engineering  
+**Course:** Software Project Design and Development (CSE 416)  
+
+**Submitted To:**  
+Al-Imtiaz  
+*Associate Professor & Head, Ph.D. (Research Fellow), BUET, Department of CSE, UITS*  
+
+**Submitted By (Group Members):**  
+- **Rudro Antony Mrong** (ID: 0432320005101059)  
+- **Md. Masud Rahman** (ID: 0432320005101064)  
+
+**Document Version:** 1.1.0 (Approved Specification)  
+**Submission Date:** August 2026  
 
 ---
 

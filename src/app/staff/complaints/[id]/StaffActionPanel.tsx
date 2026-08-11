@@ -3,8 +3,20 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { updateComplaintStatusAction, addProgressNoteAction } from "../../actions";
-import { Wrench, CheckCircle2, UserCheck, MessageSquarePlus, Send } from "lucide-react";
+import {
+  updateComplaintStatusAction,
+  addProgressNoteAction,
+  overrideSlaDateAction,
+} from "../../actions";
+import {
+  Wrench,
+  CheckCircle2,
+  UserCheck,
+  MessageSquarePlus,
+  Send,
+  Clock,
+  Calendar,
+} from "lucide-react";
 
 interface StaffActionPanelProps {
   complaintId: string;
@@ -24,6 +36,11 @@ export default function StaffActionPanel({
   const [noteText, setNoteText] = useState("");
   const [isInternal, setIsInternal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // SLA Override State
+  const [showSlaModal, setShowSlaModal] = useState(false);
+  const [slaDate, setSlaDate] = useState("");
+  const [slaReason, setSlaReason] = useState("");
 
   const isAssignedToMe = assignedStaffId === currentUserId;
 
@@ -72,12 +89,103 @@ export default function StaffActionPanel({
     }
   };
 
+  const handleSlaOverrideSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!slaDate || !slaReason.trim()) return;
+
+    setIsSubmitting(true);
+    const res = await overrideSlaDateAction(complaintId, slaDate, slaReason);
+    setIsSubmitting(false);
+
+    if (res?.error) {
+      toast.error(res.error);
+    } else {
+      toast.success("SLA Target Date successfully adjusted!");
+      setShowSlaModal(false);
+      setSlaDate("");
+      setSlaReason("");
+      router.refresh();
+    }
+  };
+
   return (
     <div className="care-panel rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6">
-      <div className="flex items-center gap-2 pb-4 border-b border-[#1D4A38]">
-        <Wrench className="w-5 h-5 text-[#10B981]" />
-        <h2 className="font-bold text-base text-[#ECFDF5] font-display">Staff Action & Work Log Desk</h2>
+      <div className="flex items-center justify-between pb-4 border-b border-[#1D4A38]">
+        <div className="flex items-center gap-2">
+          <Wrench className="w-5 h-5 text-[#10B981]" />
+          <h2 className="font-bold text-base text-[#ECFDF5] font-display">
+            Staff Action & Work Log Desk
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setShowSlaModal(!showSlaModal)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#153326] hover:bg-[#1D4A38] border border-[#1D4A38] text-[#34D399] font-bold text-xs rounded-xl transition-colors btn-care"
+        >
+          <Clock className="w-4 h-4 text-[#10B981]" />
+          <span>{showSlaModal ? "Cancel SLA Change" : "Adjust Target SLA"}</span>
+        </button>
       </div>
+
+      {/* SLA Target Override Form Drawer */}
+      {showSlaModal && (
+        <form
+          onSubmit={handleSlaOverrideSubmit}
+          className="p-4 bg-[#07130E] border border-[#10B981]/50 rounded-2xl space-y-4 animate-in fade-in slide-in-from-top-2"
+        >
+          <div className="flex items-center gap-2 text-xs font-extrabold text-[#10B981] uppercase tracking-wider">
+            <Calendar className="w-4 h-4" />
+            <span>Override Target Resolution Deadline (SLA)</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-[#A7F3D0]">
+                New Target Date & Time *
+              </label>
+              <input
+                type="datetime-local"
+                required
+                value={slaDate}
+                onChange={(e) => setSlaDate(e.target.value)}
+                className="w-full px-3 py-2 bg-[#0E2219] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-[#A7F3D0]">
+                Reason for Adjustment *
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Waiting on replacement AC compressor delivery"
+                value={slaReason}
+                onChange={(e) => setSlaReason(e.target.value)}
+                className="w-full px-3 py-2 bg-[#0E2219] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] placeholder-[#A7F3D0]/60 focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setShowSlaModal(false)}
+              className="px-3 py-1.5 text-xs text-[#A7F3D0]/70 hover:text-white"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting || !slaDate || !slaReason.trim()}
+              className="px-4 py-2 bg-[#10B981] hover:bg-[#059669] text-[#042014] font-extrabold text-xs rounded-xl btn-care disabled:opacity-50"
+            >
+              Save New SLA Target
+            </button>
+          </div>
+        </form>
+      )}
 
       {/* Quick Action Controls */}
       <div className="space-y-3">
@@ -123,7 +231,7 @@ export default function StaffActionPanel({
 
       {/* Add Progress Note Form */}
       <form onSubmit={handleAddNote} className="space-y-4 pt-4 border-t border-[#1D4A38]">
-        <label className="block text-xs font-bold text-[#A7F3D0] uppercase tracking-wider flex items-center gap-1.5">
+        <label className="block text-xs font-bold text-[#A7F3D0] uppercase tracking-wider items-center gap-1.5">
           <MessageSquarePlus className="w-4 h-4 text-[#10B981]" />
           Post Work Audit Log Note
         </label>

@@ -419,6 +419,29 @@ This subsystem handles the post-resolution feedback loop, enabling students to v
     \item \textbf{Requirement 5.5.B - Auto-Closure Timeout:} Tickets remaining in \texttt{Resolved} state for 7 consecutive days without student response shall auto-transition to \texttt{Closed}.
 \end{itemize}
 
+\subsection{Resource \& Cost Estimation}
+\begin{table}[H]
+    \centering
+    \caption{Annualized Cloud Infrastructure \& Operational Budget Breakdown}
+    \label{tab:cost_estimation}
+    \small
+    \begin{tabularx}{\textwidth}{p{0.24\textwidth} X c r}
+        \toprule
+        \textbf{Category} & \textbf{Component / Resource} & \textbf{Quantity} & \textbf{Annual Cost (USD)} \\
+        \midrule
+        \textbf{Development} & Internal Engineering Team & 1 Team & \$0.00 \\
+        \textbf{Application Hosting} & Vercel Hosting (Pro Tier) & 12 Months & \$240.00 \\
+        \textbf{Database \& Auth} & Supabase Managed PostgreSQL (Pro Tier) & 12 Months & \$300.00 \\
+        \textbf{Rate Limiting} & Upstash Redis Cloud & 12 Months & \$120.00 \\
+        \textbf{Domain \& Network} & Campus Subdomain (\texttt{campuscare.}\\ \texttt{university.edu}) & 1 Domain & \$0.00 \\
+        \textbf{SSL Certificate} & Vercel / Let's Encrypt Automated SSL & 1 Certificate & \$0.00 \\
+        \textbf{Buffer / Storage} & Bandwidth \& Storage Contingency Buffer & 1 & \$100.00 \\
+        \midrule
+        \multicolumn{3}{l}{\textbf{Total Annual Cost}} & \textbf{\$760.00} \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
 % =========================================================
 % SECTION 6: SYSTEM DESIGN & BEHAVIORAL DIAGRAMS
 % =========================================================

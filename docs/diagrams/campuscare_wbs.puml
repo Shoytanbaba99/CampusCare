@@ -1,0 +1,28 @@
+@startwbs
+skinparam dpi 300
+skinparam defaultFontSize 14
+skinparam monochrome false
+skinparam shadowing false
+skinparam backgroundColor #07130E
+skinparam fontColor #ECFDF5
+skinparam arrowColor #10B981
+
+* CampusCare System
+** 1.0 Requirements & Architecture
+*** 1.1 PRD and Specification
+*** 1.2 Database ERD and Schema
+** 2.0 Database & Security Engine
+*** 2.1 Supabase PostgreSQL Setup
+*** 2.2 RLS Helper Functions
+*** 2.3 Audit Ledger & DB Triggers
+** 3.0 Auth & Middleware
+*** 3.1 SSR Auth & Edge Proxy
+*** 3.2 Upstash Redis Rate Limiting
+** 4.0 User Feature Modules
+*** 4.1 Student Portal & Form
+*** 4.2 Staff Desk & SLA Target Engine
+*** 4.3 Admin Dispatcher & User Desk
+** 5.0 QA & Launch
+*** 5.1 End-to-End Security Audit
+*** 5.2 Production Build Optimization
+@endwbs

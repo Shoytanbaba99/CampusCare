@@ -19,6 +19,12 @@ const resolveSchema = z.object({
   resolutionNotes: z.string().min(5, "Please provide resolution notes explaining repair actions."),
 });
 
+const slaOverrideSchema = z.object({
+  complaintId: z.string().min(1),
+  newSlaDueAt: z.string().min(1, "Please select a valid deadline date."),
+  reason: z.string().min(3, "Please provide a reason for the SLA adjustment."),
+});
+
 export async function updateComplaintStatusAction(complaintId: string, newStatus: string, assignedStaffId?: string) {
   const supabase = await createClient();
 
@@ -67,6 +73,57 @@ export async function updateComplaintStatusAction(complaintId: string, newStatus
 
   revalidatePath("/staff/dashboard");
   revalidatePath(`/staff/complaints/${complaintId}`);
+  return { success: true };
+}
+
+export async function overrideSlaDateAction(complaintId: string, newSlaDueAt: string, reason: string) {
+  const validated = slaOverrideSchema.safeParse({ complaintId, newSlaDueAt, reason });
+  if (!validated.success) {
+    return { error: validated.error.issues[0]?.message || "Invalid input parameters." };
+  }
+
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Unauthenticated." };
+  }
+
+  const isoDate = new Date(newSlaDueAt).toISOString();
+
+  const { error: updateError } = await supabase
+    .from("complaints")
+    .update({
+      sla_due_at: isoDate,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", complaintId);
+
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  const formattedDate = new Date(isoDate).toLocaleString();
+  await supabase.from("progress_notes").insert({
+    complaint_id: complaintId,
+    author_id: user.id,
+    note_text: `SLA Target Completion Date adjusted to ${formattedDate}. Reason: ${reason}`,
+    is_internal: false,
+  });
+
+  await supabase.from("audit_logs").insert({
+    complaint_id: complaintId,
+    actor_id: user.id,
+    action: "SLA_OVERRIDDEN_STAFF",
+    new_state: { sla_due_at: isoDate, reason },
+  });
+
+  revalidatePath("/staff/dashboard");
+  revalidatePath(`/staff/complaints/${complaintId}`);
+  revalidatePath("/student/dashboard");
   return { success: true };
 }
 

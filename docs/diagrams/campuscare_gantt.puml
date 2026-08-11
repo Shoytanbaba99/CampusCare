@@ -1,0 +1,27 @@
+@startgantt
+skinparam dpi 300
+skinparam defaultFontSize 14
+skinparam backgroundColor #07130E
+skinparam fontColor #ECFDF5
+
+projectscale daily
+Project starts 2026-07-01
+
+-- Phase 1 Requirements & Architecture --
+[Requirements & PRD] breaks 7 days and is colored in #10B981
+[Database Schema & ERD] breaks 7 days and is colored in #10B981
+
+-- Phase 2 Core Infrastructure --
+[Supabase DB & RLS Security] breaks 7 days and is colored in #10B981
+[SSR Auth & Edge Proxy] breaks 7 days and is colored in #10B981
+
+-- Phase 3 Module Development --
+[Student Portal & Dropdowns] breaks 6 days and is colored in #10B981
+[Staff Queue & SLA Engine] breaks 4 days and is colored in #10B981
+[Admin Desk & User Management] breaks 3 days and is colored in #10B981
+
+-- Phase 4 QA & Deployment --
+[Audit Logging & Security QA] breaks 2 days and is colored in #34D399
+[Production Build & Docs] breaks 2 days and is colored in #34D399
+
+@endgantt
