@@ -26,6 +26,11 @@ const slaOverrideSchema = z.object({
 });
 
 export async function updateComplaintStatusAction(complaintId: string, newStatus: string, assignedStaffId?: string) {
+  const allowedStatuses = ["submitted", "assigned", "in_progress", "resolved", "closed"];
+  if (!allowedStatuses.includes(newStatus)) {
+    return { error: "Invalid status value." };
+  }
+
   const supabase = await createClient();
 
   const {

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { toast } from "sonner";
 import { updateUserRoleAction, createDepartmentAction } from "./actions";
+import { createClient } from "@/utils/supabase/client";
 import {
   Users,
   Search,
@@ -54,10 +55,18 @@ export default function UserManagementClient({
 
   const [isPending, startTransition] = useTransition();
 
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setCurrentUserId(data.user?.id || null));
+  }, []);
+
+  const searchLower = searchQuery.toLowerCase();
   const filteredUsers = users.filter((u) => {
     const matchesSearch =
-      u.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchQuery.toLowerCase());
+      u.full_name.toLowerCase().includes(searchLower) ||
+      u.email.toLowerCase().includes(searchLower);
     const matchesRole = roleFilter === "all" || u.role === roleFilter;
     return matchesSearch && matchesRole;
   });
@@ -266,20 +275,24 @@ export default function UserManagementClient({
               <div className="space-y-2 text-xs">
                 <label className="block text-[#A7F3D0]/80 font-bold uppercase tracking-wider">Target System Role *</label>
                 <div className="grid grid-cols-3 gap-2">
-                  {(["student", "staff", "admin"] as const).map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setTargetRole(r)}
-                      className={`py-2.5 px-3 rounded-xl border capitalize font-bold btn-care ${
-                        targetRole === r
-                          ? "bg-[#10B981] border-[#10B981] text-white"
-                          : "bg-[#07130E] border-[#1D4A38] text-[#A7F3D0]/80"
-                      }`}
-                    >
-                      {r}
-                    </button>
-                  ))}
+                  {(["student", "staff", "admin"] as const).map((r) => {
+                    const isSelfDemotion = selectedUser.id === currentUserId && r !== "admin";
+                    return (
+                      <button
+                        key={r}
+                        type="button"
+                        disabled={isSelfDemotion}
+                        onClick={() => setTargetRole(r)}
+                        className={`py-2.5 px-3 rounded-xl border capitalize font-bold btn-care ${
+                          targetRole === r
+                            ? "bg-[#10B981] border-[#10B981] text-white"
+                            : "bg-[#07130E] border-[#1D4A38] text-[#A7F3D0]/80"
+                        } ${isSelfDemotion ? "opacity-50 cursor-not-allowed" : ""}`}
+                      >
+                        {r}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

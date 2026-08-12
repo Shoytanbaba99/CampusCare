@@ -27,6 +27,10 @@ export async function loginAction(prevState: unknown, formData: FormData) {
     return { error: error.message };
   }
 
+  if (!data.user) {
+    return { error: "Login failed: User not found." };
+  }
+
   // Fetch authoritative role from public.users table
   const { data: profile } = await supabase
     .from("users")

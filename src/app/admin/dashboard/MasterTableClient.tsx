@@ -435,17 +435,17 @@ function ReassignModal({
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const statusConfig: Record<string, { label: string; bg: string; text: string }> = {
-    submitted: { label: "Submitted", bg: "bg-blue-500/10 border-blue-500/20", text: "text-blue-300" },
-    assigned: { label: "Assigned", bg: "bg-indigo-500/10 border-indigo-500/20", text: "text-indigo-300" },
-    in_progress: { label: "In Progress", bg: "bg-amber-500/10 border-amber-500/20", text: "text-amber-300" },
-    resolved: { label: "Resolved", bg: "bg-emerald-500/10 border-emerald-500/20", text: "text-[#34D399]" },
-    closed: { label: "Closed", bg: "bg-slate-500/10 border-slate-500/20", text: "text-slate-300" },
-    reopened: { label: "Reopened", bg: "bg-rose-500/10 border-rose-500/20", text: "text-rose-300" },
-  };
+const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
+  submitted: { label: "Submitted", bg: "bg-blue-500/10 border-blue-500/20", text: "text-blue-300" },
+  assigned: { label: "Assigned", bg: "bg-indigo-500/10 border-indigo-500/20", text: "text-indigo-300" },
+  in_progress: { label: "In Progress", bg: "bg-amber-500/10 border-amber-500/20", text: "text-amber-300" },
+  resolved: { label: "Resolved", bg: "bg-emerald-500/10 border-emerald-500/20", text: "text-[#34D399]" },
+  closed: { label: "Closed", bg: "bg-slate-500/10 border-slate-500/20", text: "text-slate-300" },
+  reopened: { label: "Reopened", bg: "bg-rose-500/10 border-rose-500/20", text: "text-rose-300" },
+};
 
-  const config = statusConfig[status] || statusConfig.submitted;
+function StatusBadge({ status }: { status: string }) {
+  const config = STATUS_CONFIG[status] || STATUS_CONFIG.submitted;
 
   return (
     <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full border ${config.bg} ${config.text}`}>
@@ -454,15 +454,15 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function PriorityBadge({ priority }: { priority: string }) {
-  const priorityConfig: Record<string, { label: string; bg: string; text: string }> = {
-    low: { label: "Low", bg: "bg-slate-500/10 border-slate-500/20", text: "text-slate-300" },
-    medium: { label: "Medium", bg: "bg-blue-500/10 border-blue-500/20", text: "text-blue-300" },
-    high: { label: "High", bg: "bg-amber-500/10 border-amber-500/20", text: "text-amber-300" },
-    critical: { label: "Critical", bg: "bg-red-500/20 border-red-500/40", text: "text-red-300" },
-  };
+const PRIORITY_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
+  low: { label: "Low", bg: "bg-slate-500/10 border-slate-500/20", text: "text-slate-300" },
+  medium: { label: "Medium", bg: "bg-blue-500/10 border-blue-500/20", text: "text-blue-300" },
+  high: { label: "High", bg: "bg-amber-500/10 border-amber-500/20", text: "text-amber-300" },
+  critical: { label: "Critical", bg: "bg-red-500/20 border-red-500/40", text: "text-red-300" },
+};
 
-  const config = priorityConfig[priority] || priorityConfig.medium;
+function PriorityBadge({ priority }: { priority: string }) {
+  const config = PRIORITY_CONFIG[priority] || PRIORITY_CONFIG.medium;
 
   return (
     <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full border ${config.bg} ${config.text}`}>
