@@ -132,8 +132,17 @@ export async function createComplaintAction(prevState: unknown, formData: FormDa
   // 4. Handle Optional Photo Evidence Upload
   let file: File | null = null;
   for (const [key, value] of formData.entries()) {
-    if ((key.endsWith("image") || key.endsWith("evidenceFile")) && value instanceof File && value.size > 0) {
-      file = value;
+    if (
+      (key.endsWith("image") || key.endsWith("evidenceFile")) &&
+      typeof value === "object" &&
+      value !== null &&
+      "size" in value &&
+      "name" in value &&
+      "type" in value &&
+      typeof (value as { size: unknown }).size === "number" &&
+      (value as { size: number }).size > 0
+    ) {
+      file = value as unknown as File;
       break;
     }
   }
