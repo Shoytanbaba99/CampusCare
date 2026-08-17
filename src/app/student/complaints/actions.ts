@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
 import { publicRequestLimiter } from "@/lib/ratelimit";
@@ -38,6 +39,33 @@ function getFormField(formData: FormData, fieldName: string): string {
 export async function createComplaintAction(prevState: unknown, formData: FormData) {
   try {
     const supabase = await createClient();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { error: "Unauthenticated. Please log in again." };
+    }
+
+    // Ensure public.users profile exists to prevent foreign key constraint failures if database was reseeded
+    const { data: userProfile } = await supabase
+      .from("users")
+      .select("id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (!userProfile) {
+      await supabase.from("users").upsert(
+        {
+          id: user.id,
+          email: user.email || "",
+          full_name: user.user_metadata?.full_name || user.email?.split("@")[0] || "Student User",
+          role: "student",
+        },
+        { onConflict: "id" }
+      );
+    }
 
     // Extract department & category from FormData
     let departmentId = getFormField(formData, "departmentId");
@@ -82,14 +110,6 @@ export async function createComplaintAction(prevState: unknown, formData: FormDa
 
     const { title, location, priority, description } = validated.data;
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return { error: "Unauthenticated. Please log in again." };
-    }
-
     // Rate Limiting Check: Max 3 complaint submissions per 60 seconds per user
     if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
       try {
@@ -131,6 +151,7 @@ export async function createComplaintAction(prevState: unknown, formData: FormDa
       .maybeSingle();
 
     if (complaintError || !complaint) {
+      console.error("Supabase Complaint Insert Error:", complaintError);
       return { error: complaintError?.message || "Failed to submit complaint." };
     }
 
@@ -186,6 +207,7 @@ export async function createComplaintAction(prevState: unknown, formData: FormDa
       }
     }
 
+    revalidatePath("/student/dashboard");
     redirect("/student/dashboard");
   } catch (err: unknown) {
     // Re-throw Next.js redirect exceptions so navigation proceeds naturally

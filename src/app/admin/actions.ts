@@ -105,5 +105,63 @@ export async function reassignTicketAction(prevState: unknown, formData: FormDat
 
   revalidatePath("/admin/dashboard");
   revalidatePath("/admin/audit-logs");
+  revalidatePath("/staff/dashboard");
+  revalidatePath("/student/dashboard");
   return { success: true };
+}
+
+export async function createCategoryAction(formData: FormData) {
+  const name = getFormField(formData, "name");
+  const departmentId = getFormField(formData, "departmentId");
+
+  if (!name || !departmentId) {
+    return { error: "Category name and department are required." };
+  }
+
+  const supabase = await createClient();
+
+  // Verify caller session & admin privileges
+  const {
+    data: { user: currentUser },
+  } = await supabase.auth.getUser();
+
+  if (!currentUser) {
+    return { error: "Unauthenticated. Please log in again." };
+  }
+
+  const { data: adminProfile } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", currentUser.id)
+    .single();
+
+  if (adminProfile?.role !== "admin") {
+    return { error: "Unauthorized. Admin privileges required." };
+  }
+
+  // Insert into categories table
+  const { data: category, error: categoryError } = await supabase
+    .from("categories")
+    .insert({
+      name,
+      department_id: departmentId,
+    })
+    .select("id")
+    .maybeSingle();
+
+  if (categoryError) {
+    return { error: categoryError.message || "Failed to create category." };
+  }
+
+  // Record audit log entry
+  await supabase.from("audit_logs").insert({
+    actor_id: currentUser.id,
+    action: "create_category",
+    new_state: { name, department_id: departmentId },
+  });
+
+  revalidatePath("/admin/users");
+  revalidatePath("/student/complaints/new");
+  
+  return { success: true, message: "Category created successfully!" };
 }

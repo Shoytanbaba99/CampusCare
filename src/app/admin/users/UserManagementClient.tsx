@@ -3,6 +3,7 @@
 import { useState, useTransition, useEffect } from "react";
 import { toast } from "sonner";
 import { updateUserRoleAction, createDepartmentAction } from "./actions";
+import { createCategoryAction } from "../actions";
 import { createClient } from "@/utils/supabase/client";
 import {
   Users,
@@ -52,6 +53,11 @@ export default function UserManagementClient({
   const [isDeptModalOpen, setIsDeptModalOpen] = useState(false);
   const [newDeptName, setNewDeptName] = useState("");
   const [newDeptCode, setNewDeptCode] = useState("");
+
+  // Create Category Modal state
+  const [isCatModalOpen, setIsCatModalOpen] = useState(false);
+  const [newCatName, setNewCatName] = useState("");
+  const [catTargetDeptId, setCatTargetDeptId] = useState<string>(departments[0]?.id || "");
 
   const [isPending, startTransition] = useTransition();
 
@@ -115,6 +121,28 @@ export default function UserManagementClient({
     });
   };
 
+  const handleCreateCategory = () => {
+    if (!newCatName.trim() || !catTargetDeptId) {
+      toast.error("Please enter a category name and select a department.");
+      return;
+    }
+
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append("name", newCatName);
+      formData.append("departmentId", catTargetDeptId);
+      
+      const res = await createCategoryAction(formData);
+      if (res?.error) {
+        toast.error(res.error);
+      } else {
+        toast.success(res.message || `Created category: ${newCatName}`);
+        setIsCatModalOpen(false);
+        setNewCatName("");
+      }
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Search & Action Controls Header */}
@@ -131,10 +159,24 @@ export default function UserManagementClient({
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Create Category Button */}
+          <button
+            onClick={() => {
+              if (!catTargetDeptId && departments.length > 0) {
+                setCatTargetDeptId(departments[0].id);
+              }
+              setIsCatModalOpen(true);
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#07130E] hover:bg-[#153326] border border-[#1D4A38] text-[#10B981] text-xs font-extrabold shadow-[0_8px_30px_rgb(16,185,129,0.08)] btn-care active:scale-[0.98] transition-transform duration-150 ease-out"
+          >
+            <Plus className="w-4 h-4 text-[#10B981]" />
+            <span>NEW CATEGORY</span>
+          </button>
+
           {/* Create Department Button (WCAG AAA High Contrast Text) */}
           <button
             onClick={() => setIsDeptModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-[#042014] text-xs font-extrabold shadow-[0_8px_30px_rgb(16,185,129,0.08)] btn-care"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-[#042014] text-xs font-extrabold shadow-[0_8px_30px_rgb(16,185,129,0.08)] btn-care active:scale-[0.98] transition-transform duration-150 ease-out"
           >
             <Plus className="w-4 h-4 text-[#042014]" />
             <span>CREATE DEPARTMENT</span>
@@ -415,6 +457,83 @@ export default function UserManagementClient({
               >
                 <Plus className="w-4 h-4" />
                 <span>CREATE DEPARTMENT</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Category Modal */}
+      {isCatModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-cascade">
+          <div className="care-panel w-full max-w-md rounded-2xl p-7 space-y-6 shadow-[0_8px_30px_rgb(16,185,129,0.08)] relative animate-in fade-in zoom-in-95 duration-200 ease-out">
+            <button
+              onClick={() => setIsCatModalOpen(false)}
+              className="absolute top-5 right-5 text-[#A7F3D0]/70 hover:text-[#ECFDF5] btn-care"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-[#10B981] text-xs font-bold uppercase tracking-wider">
+                <Sparkles className="w-4 h-4" />
+                <span>NEW CATEGORY KIOSK</span>
+              </div>
+              <h3 className="text-xl font-bold text-[#ECFDF5] font-display">
+                Create Issue Category
+              </h3>
+              <p className="text-xs text-[#A7F3D0]/80">
+                Add a new issue category for students to use when submitting complaints.
+              </p>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div className="space-y-2">
+                <label className="block text-[#A7F3D0]/80 font-bold uppercase tracking-wider">Category Name *</label>
+                <input
+                  type="text"
+                  value={newCatName}
+                  onChange={(e) => setNewCatName(e.target.value)}
+                  placeholder="e.g. WiFi Connectivity"
+                  className="w-full px-4 py-3 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] placeholder-[#A7F3D0]/40 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981]"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-[#A7F3D0]/80 font-bold uppercase tracking-wider">Assigned Department *</label>
+                <div className="relative">
+                  <select
+                    value={catTargetDeptId}
+                    onChange={(e) => setCatTargetDeptId(e.target.value)}
+                    className="w-full px-4 py-3 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] appearance-none"
+                  >
+                    {departments.map((d) => (
+                      <option key={d.id} value={d.id} className="bg-[#0E2219]">
+                        {d.name} ({d.code})
+                      </option>
+                    ))}
+                  </select>
+                  <Building2 className="w-4 h-4 text-[#10B981] absolute right-3.5 top-3.5 pointer-events-none" />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2 text-xs">
+              <button
+                type="button"
+                onClick={() => setIsCatModalOpen(false)}
+                className="px-4 py-2.5 rounded-xl bg-[#07130E] border border-[#1D4A38] text-[#A7F3D0]/80 hover:text-[#ECFDF5] btn-care font-semibold active:scale-[0.98] transition-transform duration-150 ease-out"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isPending}
+                onClick={handleCreateCategory}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white font-bold shadow-md shadow-emerald-500/20 btn-care disabled:opacity-50 active:scale-[0.98] transition-transform duration-150 ease-out"
+              >
+                <Plus className="w-4 h-4" />
+                <span>CREATE CATEGORY</span>
               </button>
             </div>
           </div>

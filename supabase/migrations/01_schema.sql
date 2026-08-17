@@ -239,6 +239,11 @@ CREATE POLICY "Authenticated users can view categories"
     ON public.categories FOR SELECT
     TO authenticated USING (true);
 
+CREATE POLICY "Admins can insert categories"
+    ON public.categories FOR INSERT
+    TO authenticated
+    WITH CHECK (public.get_user_role(auth.uid()) = 'admin');
+
 -- Complaints RLS (Strict Non-Recursive Isolation)
 CREATE POLICY "Students view own complaints, Staff view department queue, Admins view all"
     ON public.complaints FOR SELECT
@@ -258,11 +263,12 @@ CREATE POLICY "Students insert own complaints"
     TO authenticated
     WITH CHECK (reporter_id = auth.uid());
 
-CREATE POLICY "Staff and Admins update complaints"
+CREATE POLICY "Users update complaints"
     ON public.complaints FOR UPDATE
     TO authenticated
     USING (
-        assigned_staff_id = auth.uid()
+        reporter_id = auth.uid()
+        OR assigned_staff_id = auth.uid()
         OR public.get_user_role(auth.uid()) = 'admin'
         OR (
             public.get_user_role(auth.uid()) = 'staff'
@@ -279,10 +285,16 @@ CREATE POLICY "Authenticated users view visible progress notes"
         OR public.get_user_role(auth.uid()) IN ('staff', 'admin')
     );
 
-CREATE POLICY "Staff and Admins insert progress notes"
+CREATE POLICY "Authenticated users insert progress notes"
     ON public.progress_notes FOR INSERT
     TO authenticated
-    WITH CHECK (public.get_user_role(auth.uid()) IN ('staff', 'admin'));
+    WITH CHECK (
+        public.get_user_role(auth.uid()) IN ('staff', 'admin')
+        OR EXISTS (
+            SELECT 1 FROM public.complaints c
+            WHERE c.id = complaint_id AND c.reporter_id = auth.uid()
+        )
+    );
 
 -- Attachments RLS
 CREATE POLICY "Authenticated users view attachments"
@@ -320,4 +332,4 @@ CREATE POLICY "Admins view audit logs"
 CREATE POLICY "System inserts audit logs"
     ON public.audit_logs FOR INSERT
     TO authenticated
-    WITH CHECK (true);
+    WITH CHECK (actor_id = auth.uid());
