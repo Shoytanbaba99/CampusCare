@@ -133,10 +133,13 @@ export async function createComplaintAction(prevState: unknown, formData: FormDa
     const hoursToAdd = slaHoursMap[priority] || 72;
     const slaDueAt = new Date(now.getTime() + hoursToAdd * 60 * 60 * 1000).toISOString();
 
+    const fallbackTicket = `CMP-${now.getFullYear()}-${Date.now().toString().slice(-4)}${Math.floor(100 + Math.random() * 900)}`;
+
     // 3. Insert Complaint into PostgreSQL (.maybeSingle prevents throwing on insert query)
     const { data: complaint, error: complaintError } = await supabase
       .from("complaints")
       .insert({
+        ticket_number: fallbackTicket,
         reporter_id: user.id,
         department_id: departmentId,
         category_id: categoryId,
@@ -206,24 +209,14 @@ export async function createComplaintAction(prevState: unknown, formData: FormDa
         });
       }
     }
-
-    revalidatePath("/student/dashboard");
-    redirect("/student/dashboard");
   } catch (err: unknown) {
-    // Re-throw Next.js redirect exceptions so navigation proceeds naturally
-    if (
-      typeof err === "object" &&
-      err !== null &&
-      "digest" in err &&
-      typeof (err as { digest: string }).digest === "string" &&
-      (err as { digest: string }).digest.startsWith("NEXT_REDIRECT")
-    ) {
-      throw err;
-    }
-
     console.error("Unhandled error in createComplaintAction:", err);
     return {
       error: err instanceof Error ? err.message : "An unexpected error occurred while submitting your ticket.",
     };
   }
+
+  // Next.js Best Practice: Always place redirect() OUTSIDE the try/catch block
+  revalidatePath("/student/dashboard");
+  redirect("/student/dashboard");
 }

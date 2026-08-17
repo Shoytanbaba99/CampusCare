@@ -178,10 +178,12 @@ CREATE SEQUENCE IF NOT EXISTS complaint_ticket_seq START WITH 1 INCREMENT BY 1;
 CREATE OR REPLACE FUNCTION public.generate_ticket_number()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.ticket_number := 'CMP-' || TO_CHAR(NOW(), 'YYYY') || '-' || LPAD(NEXTVAL('complaint_ticket_seq')::TEXT, 4, '0');
+    IF NEW.ticket_number IS NULL THEN
+        NEW.ticket_number := 'CMP-' || TO_CHAR(NOW(), 'YYYY') || '-' || LPAD(NEXTVAL('complaint_ticket_seq')::TEXT, 4, '0');
+    END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE OR REPLACE TRIGGER set_complaint_ticket_number
     BEFORE INSERT ON public.complaints
