@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { publicRequestLimiter } from "@/lib/ratelimit";
 
 // Flexible Zod Schema accepting any non-empty department/category ID (handles seed IDs like 11111111-1111-1111-1111-111111111111)
@@ -49,14 +50,17 @@ export async function createComplaintAction(prevState: unknown, formData: FormDa
     }
 
     // Ensure public.users profile exists to prevent foreign key constraint failures if database was reseeded
-    const { data: userProfile } = await supabase
+    const adminClient = createAdminClient();
+    const dbClient = adminClient || supabase;
+
+    const { data: userProfile } = await dbClient
       .from("users")
       .select("id")
       .eq("id", user.id)
       .maybeSingle();
 
     if (!userProfile) {
-      await supabase.from("users").upsert(
+      await dbClient.from("users").upsert(
         {
           id: user.id,
           email: user.email || "",

@@ -202,13 +202,18 @@ ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 -- Drop old policies to prevent collision
 DROP POLICY IF EXISTS "Users can view own profile or admins can view all" ON public.users;
 DROP POLICY IF EXISTS "Users can update own profile or admins update all" ON public.users;
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.users;
 DROP POLICY IF EXISTS "Authenticated users can view departments" ON public.departments;
+DROP POLICY IF EXISTS "Admins can insert departments" ON public.departments;
 DROP POLICY IF EXISTS "Authenticated users can view categories" ON public.categories;
+DROP POLICY IF EXISTS "Admins can insert categories" ON public.categories;
 DROP POLICY IF EXISTS "Students view own complaints, Staff view department queue, Admins view all" ON public.complaints;
 DROP POLICY IF EXISTS "Students insert own complaints" ON public.complaints;
 DROP POLICY IF EXISTS "Staff and Admins update complaints" ON public.complaints;
+DROP POLICY IF EXISTS "Users update complaints" ON public.complaints;
 DROP POLICY IF EXISTS "Authenticated users view visible progress notes" ON public.progress_notes;
 DROP POLICY IF EXISTS "Staff and Admins insert progress notes" ON public.progress_notes;
+DROP POLICY IF EXISTS "Authenticated users insert progress notes" ON public.progress_notes;
 DROP POLICY IF EXISTS "Authenticated users view attachments" ON public.attachments;
 DROP POLICY IF EXISTS "Authenticated users insert attachments" ON public.attachments;
 DROP POLICY IF EXISTS "Users view feedback" ON public.feedback;
@@ -226,6 +231,11 @@ CREATE POLICY "Users can update own profile or admins update all"
     ON public.users FOR UPDATE
     TO authenticated
     USING (auth.uid() = id OR public.get_user_role(auth.uid()) = 'admin');
+
+CREATE POLICY "Users can insert own profile"
+    ON public.users FOR INSERT
+    TO authenticated
+    WITH CHECK (auth.uid() = id);
 
 -- Departments & Categories RLS (Public read for authenticated)
 CREATE POLICY "Authenticated users can view departments"

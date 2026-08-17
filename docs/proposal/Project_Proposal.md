@@ -1,21 +1,24 @@
 # Project Proposal: CampusCare
+
 ### Centralized University Complaint Management System
 
 ![UITS Logo](file:///mnt/Shared/Projects/Github/CampusCare/docs/srs/uits_logo.png)
 
 **University:** University of Information Technology and Sciences (UITS)  
 **Department:** Department of Computer Science and Engineering  
-**Course:** Software Project Design and Development (CSE 416)  
+**Course:** Software Project Design and Development (CSE 416)
 
 **Submitted To:**  
 Al-Imtiaz  
-*Associate Professor & Head, Ph.D. (Research Fellow), BUET, Department of CSE, UITS*  
+_Associate Professor & Head, Ph.D. (Research Fellow), BUET, Department of CSE, UITS_
 
-**Submitted By (Group Members):**  
-- **Rudro Antony Mrong** (ID: 0432320005101059)  
-- **Md. Masud Rahman** (ID: 0432320005101064)  
+**Submitted By (Group Members):**
 
-**Submission Date:** August 2026  
+- **Rudro Antony Mrong** (ID: 0432320005101059)
+- **Md. Masud Rahman** (ID: 0432320005101064)
+- **Shafayat Hossain Shafin** (ID: 0432320005101088)
+
+**Submission Date:** 18 August 2026
 
 ---
 
@@ -42,9 +45,11 @@ Managing physical and technical infrastructure across campus lecture halls, dorm
 ## 3. Project Objectives
 
 ### 3.1 Primary Objective
+
 To design, develop, and deploy a responsive campus facility management platform that centralizes complaint submission, automated SLA deadline tracking, role-based dispatching, rate-limited submission APIs, and audit logging within a unified system.
 
 ### 3.2 Quantifiable & Operational Objectives
+
 1. **Resolution Acceleration:** Reduce average complaint resolution lifecycle time across campus facility operations by 40%.
 2. **Centralized Tracking:** Achieve 100% centralized tracking of submitted service requests through an authenticated single submission pipeline.
 3. **SLA Compliance:** Maintain SLA compliance above 85% across all complaint priority levels (`Critical: 4h`, `High: 24h`, `Medium: 72h`, `Low: 168h`).
@@ -56,6 +61,7 @@ To design, develop, and deploy a responsive campus facility management platform 
 ## 4. Project Scope
 
 ### 4.1 In-Scope (Minimum Viable Product - MVP)
+
 The scope for the initial release encompasses:
 
 - **Authentication & Security:** Email/password authentication via `@supabase/ssr`, `HttpOnly` session cookie management, Next.js Edge proxy middleware for role-based route protection (`Student`, `Staff`, `Admin`), and Upstash Redis rate limiting (`@upstash/ratelimit`) on submission endpoints.
@@ -65,6 +71,7 @@ The scope for the initial release encompasses:
 - **Database & Storage Infrastructure:** PostgreSQL relational schema with Row Level Security (RLS) policies utilizing `SECURITY DEFINER` helper functions to prevent policy recursion, foreign key constraints, automated ticket sequence triggers, and an immutable audit log table (`audit_logs`).
 
 ### 4.2 Out-of-Scope (Future Iterations - Version 2.0)
+
 The following capabilities are excluded from the initial release:
 
 - Automated AI complaint classification and duplicate ticket detection.
@@ -77,18 +84,21 @@ The following capabilities are excluded from the initial release:
 ## 5. Feasibility Study
 
 ### 5.1 Technical Feasibility
+
 - **Technology Stack:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, `@tanstack/react-table`, and Supabase (PostgreSQL). This stack provides standard SSR support, strong type safety, and clean separation of client and server logic.
 - **Data Isolation & Security:** Supabase Row Level Security (RLS) combined with `SECURITY DEFINER` SQL helper functions enforces strict role-based data isolation at the database layer. Upstash Redis handles request rate limiting to protect public endpoints against abuse.
 - **Input Validation:** Zod schemas handle server-side and client-side validation, preventing invalid payloads and ensuring clean input sanitization.
 - **Conclusion:** The selected tech stack uses mature, well-supported open-source frameworks suitable for institutional operational workloads.
 
 ### 5.2 Operational Feasibility
+
 - **User Interface & Accessibility:** The UI is built using the Caring Campus Green design system with responsive layouts supporting viewports down to 320px width and high-contrast text meeting WCAG standards.
 - **Workflow Alignment:** The system reflects standard university facility workflows (Student reports -> System/Admin assigns -> Staff resolves -> Student verifies).
 - **Usability:** Standardized dashboard views reduce training overhead for campus maintenance personnel and students.
 - **Conclusion:** The project is operationally feasible and fits existing university organizational structures.
 
 ### 5.3 Economic Feasibility
+
 - **Open-Source Infrastructure:** Next.js, React, Tailwind CSS, and PostgreSQL incur zero software licensing fees.
 - **Predictable Cloud Hosting:** Hosting on Vercel and Supabase keeps operational overhead low, starting on free dev tiers and scaling to modest Pro tiers ($45/month total) for production workloads.
 - **Operational Savings:** Digital reporting reduces administrative time spent taking manual calls and logging requests on paper.
@@ -98,18 +108,18 @@ The following capabilities are excluded from the initial release:
 
 ## 6. Target Audience & Role Matrix
 
-| Capability / Function | Student Role | Staff Role | Admin Role |
-| :--- | :---: | :---: | :---: |
-| Submit New Complaint | Yes | No | No |
-| View Personal Submitted Complaints | Yes | No | Yes (All) |
-| View Department Assigned Complaints | No | Yes | Yes (All) |
-| Claim / Accept Ticket & Update Status | No | Yes | Yes |
-| Override Ticket Priority & SLA Target | No | Yes | Yes |
-| Append Progress Notes | Public Notes Only | Yes | Yes |
-| Confirm or Reject Resolution | Yes | No | Yes (Override) |
-| Assign or Reassign Staff/Department | No | No | Yes |
-| Promote User & Assign Staff Department | No | No | Yes |
-| View System Audit Logs | No | No | Yes (Read-Only) |
+| Capability / Function                  |   Student Role    | Staff Role |   Admin Role    |
+| :------------------------------------- | :---------------: | :--------: | :-------------: |
+| Submit New Complaint                   |        Yes        |     No     |       No        |
+| View Personal Submitted Complaints     |        Yes        |     No     |    Yes (All)    |
+| View Department Assigned Complaints    |        No         |    Yes     |    Yes (All)    |
+| Claim / Accept Ticket & Update Status  |        No         |    Yes     |       Yes       |
+| Override Ticket Priority & SLA Target  |        No         |    Yes     |       Yes       |
+| Append Progress Notes                  | Public Notes Only |    Yes     |       Yes       |
+| Confirm or Reject Resolution           |        Yes        |     No     | Yes (Override)  |
+| Assign or Reassign Staff/Department    |        No         |     No     |       Yes       |
+| Promote User & Assign Staff Department |        No         |     No     |       Yes       |
+| View System Audit Logs                 |        No         |     No     | Yes (Read-Only) |
 
 ---
 
@@ -119,18 +129,18 @@ The following capabilities are excluded from the initial release:
 
 ![Work Breakdown Structure](file:///mnt/Shared/Projects/Github/CampusCare/docs/diagrams/campuscare_wbs.png)
 
-*Source file: [`docs/diagrams/campuscare_wbs.puml`](file:///mnt/Shared/Projects/Github/CampusCare/docs/diagrams/campuscare_wbs.puml)*
+_Source file: [`docs/diagrams/campuscare_wbs.puml`](file:///mnt/Shared/Projects/Github/CampusCare/docs/diagrams/campuscare_wbs.puml)_
 
 ### 7.2 Work Package Task & Labor Costing Breakdown
 
-| Work Package ID | Work Package Title | Work Units / Deliverables | Estimated Labor (Hours) | Estimated Cost ($0 Internal) |
-| :--- | :--- | :--- | :---: | :---: |
-| **WP 1.0** | Requirements & System Architecture | PRD, System Specification, DB ERD | 20 hrs | $0.00 |
-| **WP 2.0** | Database & Security Setup | SQL Migrations, RLS Functions, Audit Log Ledger | 35 hrs | $0.00 |
-| **WP 3.0** | Auth & Network Middleware | `@supabase/ssr` Auth, Edge Proxy, Redis Rate Limiter | 25 hrs | $0.00 |
-| **WP 4.0** | User Feature Modules | Student Portal, Staff Desk, Admin Command Desk | 60 hrs | $0.00 |
-| **WP 5.0** | Testing & Deployment | End-to-End QA, WCAG Contrast Audit, Vercel Build | 20 hrs | $0.00 |
-| **Total Project Labor** | | **5 Work Packages (12 Core Subtasks)** | **160 Hours** | **$0.00** |
+| Work Package ID         | Work Package Title                 | Work Units / Deliverables                            | Estimated Labor (Hours) | Estimated Cost ($0 Internal) |
+| :---------------------- | :--------------------------------- | :--------------------------------------------------- | :---------------------: | :--------------------------: |
+| **WP 1.0**              | Requirements & System Architecture | PRD, System Specification, DB ERD                    |         20 hrs          |            $0.00             |
+| **WP 2.0**              | Database & Security Setup          | SQL Migrations, RLS Functions, Audit Log Ledger      |         35 hrs          |            $0.00             |
+| **WP 3.0**              | Auth & Network Middleware          | `@supabase/ssr` Auth, Edge Proxy, Redis Rate Limiter |         25 hrs          |            $0.00             |
+| **WP 4.0**              | User Feature Modules               | Student Portal, Staff Desk, Admin Command Desk       |         60 hrs          |            $0.00             |
+| **WP 5.0**              | Testing & Deployment               | End-to-End QA, WCAG Contrast Audit, Vercel Build     |         20 hrs          |            $0.00             |
+| **Total Project Labor** |                                    | **5 Work Packages (12 Core Subtasks)**               |      **160 Hours**      |          **$0.00**           |
 
 ---
 
@@ -140,7 +150,7 @@ The following capabilities are excluded from the initial release:
 
 ![CampusCare Project Schedule](file:///mnt/Shared/Projects/Github/CampusCare/docs/diagrams/campuscare_gantt.png)
 
-*Source file: [`docs/diagrams/campuscare_gantt.puml`](file:///mnt/Shared/Projects/Github/CampusCare/docs/diagrams/campuscare_gantt.puml)*
+_Source file: [`docs/diagrams/campuscare_gantt.puml`](file:///mnt/Shared/Projects/Github/CampusCare/docs/diagrams/campuscare_gantt.puml)_
 
 ---
 
@@ -148,16 +158,16 @@ The following capabilities are excluded from the initial release:
 
 The budget breakdown reflects operational cloud hosting costs. Initial software development is executed internally by the campus engineering team:
 
-| Category | Component / Resource | Unit Cost | Quantity | Estimated Cost (USD) |
-| :--- | :--- | :--- | :---: | :---: |
-| **Development** | Internal Engineering Team | $0 (Campus Team) | 1 Team | $0.00 |
-| **Hosting (Application)** | Vercel Hosting (Pro Tier) | $20 / month | 12 Months | $240.00 |
-| **Database & Auth** | Supabase Managed PostgreSQL (Pro Tier) | $25 / month | 12 Months | $300.00 |
-| **Caching & Rate Limiting** | Upstash Redis Cloud | $10 / month | 12 Months | $120.00 |
-| **Domain & Network** | Campus Subdomain (`campuscare.university.edu`) | Free (Institutional) | 1 Domain | $0.00 |
-| **SSL Certificate** | Vercel / Let's Encrypt Automated SSL | Free | 1 Certificate | $0.00 |
-| **Buffer / Storage** | Storage & Bandwidth Buffer | $100 / year | 1 | $100.00 |
-| **Total Estimated Annual Cost** | | | | **$760.00** |
+| Category                        | Component / Resource                           | Unit Cost            |   Quantity    | Estimated Cost (USD) |
+| :------------------------------ | :--------------------------------------------- | :------------------- | :-----------: | :------------------: |
+| **Development**                 | Internal Engineering Team                      | $0 (Campus Team)     |    1 Team     |        $0.00         |
+| **Hosting (Application)**       | Vercel Hosting (Pro Tier)                      | $20 / month          |   12 Months   |       $240.00        |
+| **Database & Auth**             | Supabase Managed PostgreSQL (Pro Tier)         | $25 / month          |   12 Months   |       $300.00        |
+| **Caching & Rate Limiting**     | Upstash Redis Cloud                            | $10 / month          |   12 Months   |       $120.00        |
+| **Domain & Network**            | Campus Subdomain (`campuscare.university.edu`) | Free (Institutional) |   1 Domain    |        $0.00         |
+| **SSL Certificate**             | Vercel / Let's Encrypt Automated SSL           | Free                 | 1 Certificate |        $0.00         |
+| **Buffer / Storage**            | Storage & Bandwidth Buffer                     | $100 / year          |       1       |       $100.00        |
+| **Total Estimated Annual Cost** |                                                |                      |               |     **$760.00**      |
 
 ---
 

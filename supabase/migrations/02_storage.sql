@@ -15,6 +15,9 @@ ON CONFLICT (id) DO UPDATE SET
     allowed_mime_types = ARRAY['image/jpeg', 'image/png', 'image/webp'];
 
 -- Storage RLS Policies
+DROP POLICY IF EXISTS "Authenticated users can view complaint evidence photos" ON storage.objects;
+DROP POLICY IF EXISTS "Students can upload complaint evidence photos" ON storage.objects;
+
 CREATE POLICY "Authenticated users can view complaint evidence photos"
     ON storage.objects FOR SELECT
     TO authenticated
