@@ -83,7 +83,7 @@ export default async function StudentComplaintDetailPage({ params }: ComplaintPa
         </Link>
         <div>
           <span className="text-xs text-[#10B981] font-mono font-bold tracking-wider">
-            TICKET #{complaint.id.substring(0, 8).toUpperCase()}
+            TICKET #{complaint.ticket_number || complaint.id.substring(0, 8).toUpperCase()}
           </span>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#ECFDF5] font-display">
             {complaint.title}

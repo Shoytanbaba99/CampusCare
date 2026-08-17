@@ -121,7 +121,7 @@ export default function StaffActionPanel({
         <button
           type="button"
           onClick={() => setShowSlaModal(!showSlaModal)}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#153326] hover:bg-[#1D4A38] border border-[#1D4A38] text-[#34D399] font-bold text-xs rounded-xl transition-colors btn-care"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#153326] hover:bg-[#1D4A38] border border-[#1D4A38] text-[#34D399] font-bold text-xs rounded-xl transition-[opacity,transform,background-color,border-color] duration-200 ease-out active:scale-[0.98] btn-care"
         >
           <Clock className="w-4 h-4 text-[#10B981]" />
           <span>{showSlaModal ? "Cancel SLA Change" : "Adjust Target SLA"}</span>
@@ -132,7 +132,7 @@ export default function StaffActionPanel({
       {showSlaModal && (
         <form
           onSubmit={handleSlaOverrideSubmit}
-          className="p-4 bg-[#07130E] border border-[#10B981]/50 rounded-2xl space-y-4 animate-in fade-in slide-in-from-top-2"
+          className="p-4 bg-[#07130E] border border-[#10B981]/50 rounded-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200 ease-out"
         >
           <div className="flex items-center gap-2 text-xs font-extrabold text-[#10B981] uppercase tracking-wider">
             <Calendar className="w-4 h-4" />
@@ -179,7 +179,7 @@ export default function StaffActionPanel({
             <button
               type="submit"
               disabled={isSubmitting || !slaDate || !slaReason.trim()}
-              className="px-4 py-2 bg-[#10B981] hover:bg-[#059669] text-[#042014] font-extrabold text-xs rounded-xl btn-care disabled:opacity-50"
+              className="px-4 py-2 bg-[#10B981] hover:bg-[#059669] text-[#042014] font-extrabold text-xs rounded-xl btn-care disabled:opacity-50 active:scale-[0.98] transition-transform duration-150 ease-out"
             >
               Save New SLA Target
             </button>
@@ -198,7 +198,7 @@ export default function StaffActionPanel({
             <button
               onClick={handleSelfAssign}
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 py-2.5 px-4 bg-[#10B981] hover:bg-[#059669] text-[#042014] font-extrabold text-xs rounded-xl shadow-md shadow-emerald-500/20 btn-care disabled:opacity-50"
+              className="inline-flex items-center gap-2 py-2.5 px-4 bg-[#10B981] hover:bg-[#059669] text-[#042014] font-extrabold text-xs rounded-xl shadow-md shadow-emerald-500/20 btn-care disabled:opacity-50 active:scale-[0.98] transition-transform duration-150 ease-out"
             >
               <UserCheck className="w-4 h-4 text-[#042014]" />
               <span>Claim & Assign to Me</span>
@@ -209,7 +209,7 @@ export default function StaffActionPanel({
             <button
               onClick={() => handleStatusChange("in_progress")}
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs rounded-xl shadow-md shadow-amber-500/20 btn-care disabled:opacity-50"
+              className="inline-flex items-center gap-2 py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs rounded-xl shadow-md shadow-amber-500/20 btn-care disabled:opacity-50 active:scale-[0.98] transition-transform duration-150 ease-out"
             >
               <Wrench className="w-4 h-4 text-black" />
               <span>Mark In Progress</span>
@@ -220,7 +220,7 @@ export default function StaffActionPanel({
             <button
               onClick={() => handleStatusChange("resolved")}
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 py-2.5 px-4 bg-[#10B981] hover:bg-[#059669] text-[#042014] font-extrabold text-xs rounded-xl shadow-md shadow-emerald-500/20 btn-care disabled:opacity-50"
+              className="inline-flex items-center gap-2 py-2.5 px-4 bg-[#10B981] hover:bg-[#059669] text-[#042014] font-extrabold text-xs rounded-xl shadow-md shadow-emerald-500/20 btn-care disabled:opacity-50 active:scale-[0.98] transition-transform duration-150 ease-out"
             >
               <CheckCircle2 className="w-4 h-4 text-[#042014]" />
               <span>Mark Resolved & Ready</span>
@@ -259,7 +259,7 @@ export default function StaffActionPanel({
           <button
             type="submit"
             disabled={isSubmitting || !noteText.trim()}
-            className="inline-flex items-center justify-center gap-2 py-2.5 px-5 bg-[#10B981] hover:bg-[#059669] text-[#042014] font-extrabold text-xs rounded-xl shadow-md shadow-emerald-500/20 btn-care disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 py-2.5 px-5 bg-[#10B981] hover:bg-[#059669] text-[#042014] font-extrabold text-xs rounded-xl shadow-md shadow-emerald-500/20 btn-care disabled:opacity-50 active:scale-[0.98] transition-transform duration-150 ease-out"
           >
             <Send className="w-4 h-4 text-[#042014]" />
             <span>Post Audit Note</span>

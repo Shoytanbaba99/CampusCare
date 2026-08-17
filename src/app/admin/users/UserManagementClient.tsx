@@ -126,7 +126,7 @@ export default function UserManagementClient({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by user name or email..."
-            className="w-full pl-10 pr-4 py-2.5 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] placeholder-[#A7F3D0]/40 focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+            className="w-full pl-10 pr-4 py-2.5 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] placeholder-[#A7F3D0]/40 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981]"
           />
         </div>
 
@@ -134,7 +134,7 @@ export default function UserManagementClient({
           {/* Create Department Button (WCAG AAA High Contrast Text) */}
           <button
             onClick={() => setIsDeptModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-[#042014] text-xs font-extrabold shadow-md shadow-emerald-500/20 btn-care"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-[#042014] text-xs font-extrabold shadow-[0_8px_30px_rgb(16,185,129,0.08)] btn-care"
           >
             <Plus className="w-4 h-4 text-[#042014]" />
             <span>CREATE DEPARTMENT</span>
@@ -146,7 +146,7 @@ export default function UserManagementClient({
               <button
                 key={r}
                 onClick={() => setRoleFilter(r)}
-                className={`px-3 py-1.5 rounded-xl border capitalize font-semibold btn-care ${
+                className={`px-3 py-1.5 rounded-xl border capitalize font-semibold btn-care active:scale-[0.98] transition-[opacity,transform,background-color,border-color] duration-200 ease-out ${
                   roleFilter === r
                     ? "bg-[#10B981] border-[#10B981] text-white font-bold"
                     : "bg-[#07130E] border-[#1D4A38] text-[#A7F3D0]/80 hover:border-[#10B981]"
@@ -160,7 +160,7 @@ export default function UserManagementClient({
       </div>
 
       {/* Directory Data Table */}
-      <div className="care-panel rounded-2xl overflow-hidden shadow-2xl">
+      <div className="care-panel rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(16,185,129,0.08)]">
         <div className="px-6 py-4 border-b border-[#1D4A38] flex items-center justify-between text-xs">
           <div className="flex items-center gap-2 text-[#ECFDF5]">
             <Users className="w-4 h-4 text-[#10B981]" />
@@ -185,8 +185,16 @@ export default function UserManagementClient({
             <tbody className="divide-y divide-[#1D4A38]/60">
               {filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center text-[#A7F3D0]/70">
-                    No registered users match your search query.
+                  <td colSpan={5} className="py-12 text-center">
+                    <div className="flex flex-col items-center justify-center space-y-3">
+                      <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#153326] text-[#A7F3D0]">
+                        <Users className="w-5 h-5" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[#ECFDF5] font-medium">No users found</p>
+                        <p className="text-[#A7F3D0]/80">Try adjusting your search query or role filter.</p>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -235,7 +243,7 @@ export default function UserManagementClient({
                     <td className="py-3.5 px-4 text-right">
                       <button
                         onClick={() => openPromotionModal(u)}
-                        className="px-3 py-1 rounded-lg bg-[#153326] border border-[#1D4A38] text-[#10B981] text-[11px] font-bold hover:border-[#10B981] btn-care"
+                        className="px-3 py-1 rounded-lg bg-[#153326] border border-[#1D4A38] text-[#10B981] text-[11px] font-bold hover:border-[#10B981] btn-care active:scale-[0.98] transition-[opacity,transform,background-color,border-color] duration-200 ease-out"
                       >
                         Manage Role
                       </button>
@@ -251,7 +259,7 @@ export default function UserManagementClient({
       {/* Role Management Modal */}
       {selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-cascade">
-          <div className="care-panel w-full max-w-md rounded-2xl p-7 space-y-6 shadow-2xl relative">
+          <div className="care-panel w-full max-w-md rounded-2xl p-7 space-y-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 ease-out">
             <button
               onClick={() => setSelectedUser(null)}
               className="absolute top-5 right-5 text-[#A7F3D0]/70 hover:text-[#ECFDF5] btn-care"
@@ -283,7 +291,7 @@ export default function UserManagementClient({
                         type="button"
                         disabled={isSelfDemotion}
                         onClick={() => setTargetRole(r)}
-                        className={`py-2.5 px-3 rounded-xl border capitalize font-bold btn-care ${
+                        className={`py-2.5 px-3 rounded-xl border capitalize font-bold btn-care active:scale-[0.98] transition-[opacity,transform,background-color,border-color] duration-200 ease-out ${
                           targetRole === r
                             ? "bg-[#10B981] border-[#10B981] text-white"
                             : "bg-[#07130E] border-[#1D4A38] text-[#A7F3D0]/80"
@@ -306,7 +314,7 @@ export default function UserManagementClient({
                     <select
                       value={targetDeptId}
                       onChange={(e) => setTargetDeptId(e.target.value)}
-                      className="w-full px-4 py-3 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] focus:outline-none focus:ring-2 focus:ring-[#10B981] appearance-none"
+                      className="w-full px-4 py-3 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] appearance-none"
                     >
                       {departments.map((d) => (
                         <option key={d.id} value={d.id} className="bg-[#0E2219]">
@@ -325,7 +333,7 @@ export default function UserManagementClient({
               <button
                 type="button"
                 onClick={() => setSelectedUser(null)}
-                className="px-4 py-2.5 rounded-xl bg-[#07130E] border border-[#1D4A38] text-[#A7F3D0]/80 hover:text-[#ECFDF5] btn-care font-semibold"
+                className="px-4 py-2.5 rounded-xl bg-[#07130E] border border-[#1D4A38] text-[#A7F3D0]/80 hover:text-[#ECFDF5] btn-care font-semibold active:scale-[0.98] transition-transform duration-150 ease-out"
               >
                 Cancel
               </button>
@@ -333,7 +341,7 @@ export default function UserManagementClient({
                 type="button"
                 disabled={isPending}
                 onClick={handleRoleUpdate}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white font-bold shadow-md shadow-emerald-500/20 btn-care disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white font-bold shadow-md shadow-emerald-500/20 btn-care disabled:opacity-50 active:scale-[0.98] transition-transform duration-150 ease-out"
               >
                 <Check className="w-4 h-4" />
                 <span>SAVE PERMISSIONS</span>
@@ -346,7 +354,7 @@ export default function UserManagementClient({
       {/* Create Department Modal */}
       {isDeptModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-cascade">
-          <div className="care-panel w-full max-w-md rounded-2xl p-7 space-y-6 shadow-2xl relative">
+          <div className="care-panel w-full max-w-md rounded-2xl p-7 space-y-6 shadow-[0_8px_30px_rgb(16,185,129,0.08)] relative animate-in fade-in zoom-in-95 duration-200 ease-out">
             <button
               onClick={() => setIsDeptModalOpen(false)}
               className="absolute top-5 right-5 text-[#A7F3D0]/70 hover:text-[#ECFDF5] btn-care"
@@ -375,7 +383,7 @@ export default function UserManagementClient({
                   value={newDeptName}
                   onChange={(e) => setNewDeptName(e.target.value)}
                   placeholder="e.g. HVAC Maintenance"
-                  className="w-full px-4 py-3 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] placeholder-[#A7F3D0]/40 focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+                  className="w-full px-4 py-3 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] placeholder-[#A7F3D0]/40 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981]"
                 />
               </div>
 
@@ -386,7 +394,7 @@ export default function UserManagementClient({
                   value={newDeptCode}
                   onChange={(e) => setNewDeptCode(e.target.value)}
                   placeholder="e.g. HVAC"
-                  className="w-full px-4 py-3 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] placeholder-[#A7F3D0]/40 focus:outline-none focus:ring-2 focus:ring-[#10B981] uppercase"
+                  className="w-full px-4 py-3 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] placeholder-[#A7F3D0]/40 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] uppercase"
                 />
               </div>
             </div>
@@ -395,7 +403,7 @@ export default function UserManagementClient({
               <button
                 type="button"
                 onClick={() => setIsDeptModalOpen(false)}
-                className="px-4 py-2.5 rounded-xl bg-[#07130E] border border-[#1D4A38] text-[#A7F3D0]/80 hover:text-[#ECFDF5] btn-care font-semibold"
+                className="px-4 py-2.5 rounded-xl bg-[#07130E] border border-[#1D4A38] text-[#A7F3D0]/80 hover:text-[#ECFDF5] btn-care font-semibold active:scale-[0.98] transition-transform duration-150 ease-out"
               >
                 Cancel
               </button>
@@ -403,7 +411,7 @@ export default function UserManagementClient({
                 type="button"
                 disabled={isPending}
                 onClick={handleCreateDepartment}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white font-bold shadow-md shadow-emerald-500/20 btn-care disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white font-bold shadow-md shadow-emerald-500/20 btn-care disabled:opacity-50 active:scale-[0.98] transition-transform duration-150 ease-out"
               >
                 <Plus className="w-4 h-4" />
                 <span>CREATE DEPARTMENT</span>

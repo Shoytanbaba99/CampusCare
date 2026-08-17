@@ -94,7 +94,7 @@ export default async function StaffDashboardPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="care-panel care-panel-hover rounded-xl p-5 space-y-2">
+        <div className="care-panel care-panel-hover rounded-xl p-6 sm:p-8 space-y-2 shadow-[0_8px_30px_rgb(16,185,129,0.08)]">
           <div className="flex items-center justify-between text-[#A7F3D0]/80">
             <span className="text-xs font-semibold uppercase tracking-wider">Queue Total</span>
             <Wrench className="w-5 h-5 text-[#10B981]" />
@@ -102,7 +102,7 @@ export default async function StaffDashboardPage() {
           <p className="text-3xl font-bold tracking-tight text-[#ECFDF5] font-display">{totalCount}</p>
         </div>
 
-        <div className="care-panel care-panel-hover rounded-xl p-5 space-y-2">
+        <div className="care-panel care-panel-hover rounded-xl p-6 sm:p-8 space-y-2 shadow-[0_8px_30px_rgb(16,185,129,0.08)]">
           <div className="flex items-center justify-between text-[#A7F3D0]/80">
             <span className="text-xs font-semibold uppercase tracking-wider">Pending Work</span>
             <Clock className="w-5 h-5 text-amber-400" />
@@ -110,7 +110,7 @@ export default async function StaffDashboardPage() {
           <p className="text-3xl font-bold tracking-tight text-[#ECFDF5] font-display">{pendingCount}</p>
         </div>
 
-        <div className="care-panel care-panel-hover rounded-xl p-5 space-y-2">
+        <div className="care-panel care-panel-hover rounded-xl p-6 sm:p-8 space-y-2 shadow-[0_8px_30px_rgb(16,185,129,0.08)]">
           <div className="flex items-center justify-between text-[#A7F3D0]/80">
             <span className="text-xs font-semibold uppercase tracking-wider">Resolved</span>
             <CheckCircle2 className="w-5 h-5 text-[#34D399]" />
@@ -118,7 +118,7 @@ export default async function StaffDashboardPage() {
           <p className="text-3xl font-bold tracking-tight text-[#ECFDF5] font-display">{resolvedCount}</p>
         </div>
 
-        <div className="care-panel care-panel-hover rounded-xl p-5 space-y-2 border-red-500/30">
+        <div className="care-panel care-panel-hover rounded-xl p-6 sm:p-8 space-y-2 border-red-500/30 shadow-[0_8px_30px_rgb(16,185,129,0.08)]">
           <div className="flex items-center justify-between text-red-400">
             <span className="text-xs font-semibold uppercase tracking-wider">Overdue SLA</span>
             <AlertTriangle className="w-5 h-5 text-red-400" />
@@ -128,7 +128,7 @@ export default async function StaffDashboardPage() {
       </div>
 
       {/* Complaints Queue Table */}
-      <div className="care-panel rounded-xl overflow-hidden shadow-2xl">
+      <div className="care-panel rounded-xl overflow-hidden shadow-[0_8px_30px_rgb(16,185,129,0.08)]">
         <div className="px-6 py-4 border-b border-[#1D4A38] flex items-center justify-between">
           <h2 className="font-semibold text-base text-[#ECFDF5] font-display">Assigned Department Feed</h2>
           <span className="text-xs text-[#A7F3D0]/80">
@@ -141,8 +141,16 @@ export default async function StaffDashboardPage() {
             Failed to load department complaints. Please refresh.
           </div>
         ) : !complaints || complaints.length === 0 ? (
-          <div className="p-12 text-center text-[#A7F3D0]/70">
-            No complaints currently assigned to your department queue.
+          <div className="p-12 text-center space-y-4">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#153326] text-[#A7F3D0]">
+              <Wrench className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-medium text-[#ECFDF5] font-display">No tickets assigned yet</h3>
+              <p className="text-xs text-[#A7F3D0]/80 max-w-sm mx-auto">
+                Your queue is currently clear. Any new maintenance requests routed to your department will appear here.
+              </p>
+            </div>
           </div>
         ) : (
           <div className="divide-y divide-[#1D4A38]">
@@ -156,7 +164,7 @@ export default async function StaffDashboardPage() {
               return (
                 <div
                   key={item.id}
-                  className={`p-5 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                  className={`p-6 sm:p-8 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                     isOverdue ? "bg-red-500/5 hover:bg-red-500/10" : "hover:bg-[#153326]/40"
                   }`}
                 >

@@ -33,15 +33,17 @@ export default function LandingPage() {
               </span>
             </div>
 
-            <div className="flex items-center gap-3 font-sans text-xs">
+            <div className="flex items-center gap-3 font-sans text-xs" suppressHydrationWarning>
               <Link
                 href="/login"
+                suppressHydrationWarning
                 className="px-4 py-2 rounded-xl text-[#A7F3D0] hover:text-[#ECFDF5] hover:bg-[#153326] font-semibold transition-all"
               >
                 Sign In
               </Link>
               <Link
                 href="/signup"
+                suppressHydrationWarning
                 className="px-4.5 py-2 rounded-xl bg-[#10B981] hover:bg-[#059669] text-[#042014] font-extrabold shadow-md shadow-emerald-500/20 btn-care"
               >
                 Register Account

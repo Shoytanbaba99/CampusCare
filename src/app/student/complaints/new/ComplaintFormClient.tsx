@@ -110,7 +110,7 @@ export default function ComplaintFormClient({ departments, categories }: Complai
       <div className="flex items-center gap-4">
         <Link
           href="/student/dashboard"
-          className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-[#0E2219] border border-[#1D4A38] text-[#A7F3D0]/80 hover:text-[#ECFDF5] hover:border-[#10B981] btn-care"
+          className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-[#0E2219] border border-[#1D4A38] text-[#A7F3D0]/80 hover:text-[#ECFDF5] hover:border-[#10B981] btn-care active:scale-[0.98] transition-[opacity,transform,background-color,border-color] duration-200 ease-out"
         >
           <ArrowLeft className="w-6 h-6" />
         </Link>
@@ -154,7 +154,7 @@ export default function ComplaintFormClient({ departments, categories }: Complai
                     {activeDept ? activeDept.name : "Select Department"}
                   </span>
                 </div>
-                <ChevronDown className={`w-5 h-5 text-[#A7F3D0]/60 transition-transform duration-300 ${isDeptOpen ? "rotate-180 text-[#10B981]" : "group-hover:text-[#10B981]"}`} />
+                <ChevronDown className={`w-5 h-5 text-[#A7F3D0]/60 transition-transform duration-200 ease-out ${isDeptOpen ? "rotate-180 text-[#10B981]" : "group-hover:text-[#10B981] group-hover:translate-x-1"}`} />
               </button>
 
               {/* Dropdown Menu */}
@@ -198,7 +198,7 @@ export default function ComplaintFormClient({ departments, categories }: Complai
                 <span className="text-[#ECFDF5] font-bold text-base truncate pr-4">
                   {activeCat ? activeCat.name : "Select Issue Type"}
                 </span>
-                <ChevronDown className={`w-5 h-5 text-[#A7F3D0]/60 transition-transform duration-300 shrink-0 ${isCatOpen ? "rotate-180 text-[#10B981]" : "group-hover:text-[#10B981]"}`} />
+                <ChevronDown className={`w-5 h-5 text-[#A7F3D0]/60 transition-transform duration-200 ease-out shrink-0 ${isCatOpen ? "rotate-180 text-[#10B981]" : "group-hover:text-[#10B981] group-hover:translate-x-1"}`} />
               </button>
 
               {/* Dropdown Menu */}
@@ -281,7 +281,7 @@ export default function ComplaintFormClient({ departments, categories }: Complai
                   key={p.id}
                   type="button"
                   onClick={() => setSelectedPriority(p.id)}
-                  className={`py-3 px-3 rounded-xl border text-center font-bold text-xs sm:text-sm btn-care transition-all ${
+                  className={`py-3 px-3 rounded-xl border text-center font-bold text-xs sm:text-sm btn-care transition-[opacity,transform,background-color,border-color] duration-200 ease-out active:scale-[0.98] ${
                     selectedPriority === p.id
                       ? "bg-[#10B981] border-[#10B981] text-[#042014] shadow-md shadow-emerald-500/20"
                       : "bg-[#07130E] border-[#1D4A38] text-[#A7F3D0]/80 hover:border-[#10B981]/50"
@@ -342,7 +342,7 @@ export default function ComplaintFormClient({ departments, categories }: Complai
                         fileInputRef.current.value = "";
                       }
                     }}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 shadow-md hover:bg-red-600 z-20"
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 shadow-md hover:bg-red-600 z-20 hover:scale-110 active:scale-90 transition-transform"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -361,7 +361,7 @@ export default function ComplaintFormClient({ departments, categories }: Complai
           <button
             type="submit"
             disabled={isPending}
-            className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-[#10B981] hover:bg-[#059669] text-[#042014] font-extrabold text-base rounded-xl shadow-lg shadow-emerald-500/25 btn-care disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-[#10B981] hover:bg-[#059669] text-[#042014] font-extrabold text-base rounded-xl shadow-lg shadow-emerald-500/25 btn-care disabled:opacity-50 active:scale-[0.98] transition-transform duration-150 ease-out"
           >
             {isPending ? (
               <span>Submitting complaint...</span>

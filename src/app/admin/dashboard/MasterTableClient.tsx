@@ -144,7 +144,7 @@ export default function MasterTableClient({
         cell: ({ row }) => (
           <button
             onClick={() => setSelectedTicket(row.original)}
-            className="px-3 py-1 text-xs font-bold rounded-lg bg-[#153326] text-[#10B981] hover:border-[#10B981] border border-[#1D4A38] btn-care"
+            className="px-3 py-1 text-xs font-bold rounded-lg bg-[#153326] text-[#10B981] hover:border-[#10B981] border border-[#1D4A38] btn-care active:scale-[0.98] transition-transform duration-150 ease-out"
           >
             Re-assign
           </button>
@@ -175,7 +175,7 @@ export default function MasterTableClient({
   return (
     <div className="space-y-4">
       {/* Search & Filter Controls Toolbar */}
-      <div className="care-panel rounded-2xl p-4 space-y-3 font-sans text-xs">
+      <div className="care-panel rounded-2xl p-4 sm:p-6 space-y-3 font-sans text-xs shadow-[0_8px_30px_rgb(16,185,129,0.08)]">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Global Text Search */}
           <div className="relative">
@@ -185,7 +185,7 @@ export default function MasterTableClient({
               value={globalFilter ?? ""}
               onChange={(e) => setGlobalFilter(e.target.value)}
               placeholder="Search title, ticket #..."
-              className="w-full pl-10 pr-4 py-2.5 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] placeholder-[#A7F3D0]/40 focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+              className="w-full pl-10 pr-4 py-2.5 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] placeholder-[#A7F3D0]/40 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981]"
             />
           </div>
 
@@ -193,7 +193,7 @@ export default function MasterTableClient({
           <select
             value={deptFilter}
             onChange={(e) => setDeptFilter(e.target.value)}
-            className="w-full px-3 py-2.5 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+            className="w-full px-3 py-2.5 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981]"
           >
             <option value="all">All Departments</option>
             {departments.map((d) => (
@@ -207,7 +207,7 @@ export default function MasterTableClient({
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full px-3 py-2.5 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+            className="w-full px-3 py-2.5 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981]"
           >
             <option value="all">All Statuses</option>
             <option value="submitted">Submitted</option>
@@ -222,7 +222,7 @@ export default function MasterTableClient({
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="w-full px-3 py-2.5 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+            className="w-full px-3 py-2.5 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981]"
           >
             <option value="all">All Priorities</option>
             <option value="critical">Critical (4h SLA)</option>
@@ -234,7 +234,7 @@ export default function MasterTableClient({
       </div>
 
       {/* TanStack Master Data Table */}
-      <div className="care-panel rounded-2xl overflow-hidden shadow-2xl">
+      <div className="care-panel rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(16,185,129,0.08)]">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs font-sans">
             <thead>
@@ -253,8 +253,16 @@ export default function MasterTableClient({
             <tbody className="divide-y divide-[#1D4A38]/60">
               {table.getRowModel().rows.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length} className="py-12 text-center text-[#A7F3D0]/70">
-                    No tickets match the selected filters.
+                  <td colSpan={columns.length} className="py-12 text-center">
+                    <div className="flex flex-col items-center justify-center space-y-3">
+                      <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#153326] text-[#A7F3D0]">
+                        <Search className="w-5 h-5" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[#ECFDF5] font-medium">No matching tickets found</p>
+                        <p className="text-[#A7F3D0]/80">Adjust your search or filter criteria to see more results.</p>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -281,14 +289,14 @@ export default function MasterTableClient({
             <button
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
-              className="p-1.5 rounded-lg border border-[#1D4A38] bg-[#07130E] text-[#A7F3D0] hover:text-[#ECFDF5] disabled:opacity-40 btn-care"
+              className="p-1.5 rounded-lg border border-[#1D4A38] bg-[#07130E] text-[#A7F3D0] hover:text-[#ECFDF5] disabled:opacity-40 btn-care active:scale-[0.98] transition-transform duration-150 ease-out"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
-              className="p-1.5 rounded-lg border border-[#1D4A38] bg-[#07130E] text-[#A7F3D0] hover:text-[#ECFDF5] disabled:opacity-40 btn-care"
+              className="p-1.5 rounded-lg border border-[#1D4A38] bg-[#07130E] text-[#A7F3D0] hover:text-[#ECFDF5] disabled:opacity-40 btn-care active:scale-[0.98] transition-transform duration-150 ease-out"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -331,7 +339,7 @@ function ReassignModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-cascade">
-      <div className="care-panel w-full max-w-md rounded-2xl p-6 space-y-5 shadow-2xl relative text-xs">
+      <div className="care-panel w-full max-w-md rounded-2xl p-6 space-y-5 shadow-2xl relative text-xs animate-in fade-in zoom-in-95 duration-200 ease-out">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-[#A7F3D0]/70 hover:text-[#ECFDF5] btn-care"
@@ -369,7 +377,7 @@ function ReassignModal({
                 setTargetDeptId(e.target.value);
                 setTargetStaffId("");
               }}
-              className="w-full px-3.5 py-2.5 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+              className="w-full px-3.5 py-2.5 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981]"
             >
               {departments.map((d) => (
                 <option key={d.id} value={d.id}>
@@ -388,7 +396,7 @@ function ReassignModal({
               name="staffId"
               value={targetStaffId}
               onChange={(e) => setTargetStaffId(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+              className="w-full px-3.5 py-2.5 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981]"
             >
               <option value="">Unassigned (Department Pool)</option>
               {filteredStaff.map((s) => (
@@ -408,7 +416,7 @@ function ReassignModal({
               type="text"
               name="note"
               placeholder="Reason for ticket re-assignment..."
-              className="w-full px-3.5 py-2.5 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] placeholder-[#A7F3D0]/40 focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+              className="w-full px-3.5 py-2.5 bg-[#07130E] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] placeholder-[#A7F3D0]/40 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981]"
             />
           </div>
 
@@ -416,14 +424,14 @@ function ReassignModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-[#07130E] border border-[#1D4A38] text-[#A7F3D0]/80 hover:text-[#ECFDF5] btn-care"
+              className="px-4 py-2 rounded-xl bg-[#07130E] border border-[#1D4A38] text-[#A7F3D0]/80 hover:text-[#ECFDF5] btn-care active:scale-[0.98] transition-transform duration-150 ease-out"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white font-bold btn-care disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white font-bold btn-care disabled:opacity-50 active:scale-[0.98] transition-transform duration-150 ease-out"
             >
               <Send className="w-3.5 h-3.5" />
               <span>CONFIRM DISPATCH</span>

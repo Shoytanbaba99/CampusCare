@@ -36,150 +36,172 @@ function getFormField(formData: FormData, fieldName: string): string {
 }
 
 export async function createComplaintAction(prevState: unknown, formData: FormData) {
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
 
-  // Extract department & category from FormData
-  let departmentId = getFormField(formData, "departmentId");
-  let categoryId = getFormField(formData, "categoryId");
+    // Extract department & category from FormData
+    let departmentId = getFormField(formData, "departmentId");
+    let categoryId = getFormField(formData, "categoryId");
 
-  // 1. Database Resolution for departmentId
-  if (!departmentId) {
-    const { data: firstDept } = await supabase.from("departments").select("id").limit(1).single();
-    departmentId = firstDept?.id || "11111111-1111-1111-1111-111111111111";
-  }
+    // 1. Database Resolution for departmentId (.maybeSingle prevents PGRST116 throw)
+    if (!departmentId) {
+      const { data: firstDept } = await supabase.from("departments").select("id").limit(1).maybeSingle();
+      departmentId = firstDept?.id || "11111111-1111-1111-1111-111111111111";
+    }
 
-  // 2. Database Resolution for categoryId
-  if (!categoryId) {
-    const { data: deptCat } = await supabase
-      .from("categories")
+    // 2. Database Resolution for categoryId (.maybeSingle prevents PGRST116 throw)
+    if (!categoryId) {
+      const { data: deptCat } = await supabase
+        .from("categories")
+        .select("id")
+        .eq("department_id", departmentId)
+        .limit(1)
+        .maybeSingle();
+
+      if (deptCat) {
+        categoryId = deptCat.id;
+      } else {
+        const { data: anyCat } = await supabase.from("categories").select("id").limit(1).maybeSingle();
+        categoryId = anyCat?.id || "89fe0f5f-dac3-4a30-9e4c-c40885f146c2";
+      }
+    }
+
+    const rawData = {
+      title: getFormField(formData, "title"),
+      departmentId,
+      categoryId,
+      location: getFormField(formData, "location"),
+      priority: getFormField(formData, "priority") || "medium",
+      description: getFormField(formData, "description"),
+    };
+
+    const validated = complaintSchema.safeParse(rawData);
+    if (!validated.success) {
+      return { error: validated.error.issues[0]?.message || "Invalid form data." };
+    }
+
+    const { title, location, priority, description } = validated.data;
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { error: "Unauthenticated. Please log in again." };
+    }
+
+    // Rate Limiting Check: Max 3 complaint submissions per 60 seconds per user
+    if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+      try {
+        const { success } = await publicRequestLimiter.limit(`create_complaint_${user.id}`);
+        if (!success) {
+          return { error: "Rate limit exceeded. Please wait a minute before submitting another complaint." };
+        }
+      } catch (redisErr) {
+        console.warn("Upstash Redis rate limiter warning (continuing submission):", redisErr);
+      }
+    }
+
+    // Calculate SLA Due Timestamp based on Priority level
+    const now = new Date();
+    const slaHoursMap: Record<string, number> = {
+      low: 168, // 7 days
+      medium: 72, // 3 days
+      high: 24, // 24 hours
+      critical: 4, // 4 hours
+    };
+    const hoursToAdd = slaHoursMap[priority] || 72;
+    const slaDueAt = new Date(now.getTime() + hoursToAdd * 60 * 60 * 1000).toISOString();
+
+    // 3. Insert Complaint into PostgreSQL (.maybeSingle prevents throwing on insert query)
+    const { data: complaint, error: complaintError } = await supabase
+      .from("complaints")
+      .insert({
+        reporter_id: user.id,
+        department_id: departmentId,
+        category_id: categoryId,
+        title,
+        description,
+        location,
+        priority,
+        status: "submitted",
+        sla_due_at: slaDueAt,
+      })
       .select("id")
-      .eq("department_id", departmentId)
-      .limit(1)
-      .single();
+      .maybeSingle();
 
-    if (deptCat) {
-      categoryId = deptCat.id;
-    } else {
-      const { data: anyCat } = await supabase.from("categories").select("id").limit(1).single();
-      categoryId = anyCat?.id || "89fe0f5f-dac3-4a30-9e4c-c40885f146c2";
+    if (complaintError || !complaint) {
+      return { error: complaintError?.message || "Failed to submit complaint." };
     }
-  }
 
-  const rawData = {
-    title: getFormField(formData, "title"),
-    departmentId,
-    categoryId,
-    location: getFormField(formData, "location"),
-    priority: getFormField(formData, "priority") || "medium",
-    description: getFormField(formData, "description"),
-  };
-
-  const validated = complaintSchema.safeParse(rawData);
-  if (!validated.success) {
-    return { error: validated.error.issues[0]?.message || "Invalid form data." };
-  }
-
-  const { title, location, priority, description } = validated.data;
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { error: "Unauthenticated. Please log in again." };
-  }
-
-  // Rate Limiting Check: Max 3 complaint submissions per 60 seconds per user
-  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-    const { success } = await publicRequestLimiter.limit(`create_complaint_${user.id}`);
-    if (!success) {
-      return { error: "Rate limit exceeded. Please wait a minute before submitting another complaint." };
+    // 4. Handle Optional Photo Evidence Upload
+    let file: File | null = null;
+    for (const [key, value] of formData.entries()) {
+      if (
+        (key.endsWith("image") || key.endsWith("evidenceFile")) &&
+        typeof value === "object" &&
+        value !== null &&
+        "size" in value &&
+        "name" in value &&
+        "type" in value &&
+        typeof (value as { size: unknown }).size === "number" &&
+        (value as { size: number }).size > 0
+      ) {
+        file = value as unknown as File;
+        break;
+      }
     }
-  }
 
-  // Calculate SLA Due Timestamp based on Priority level
-  const now = new Date();
-  const slaHoursMap: Record<string, number> = {
-    low: 168, // 7 days
-    medium: 72, // 3 days
-    high: 24, // 24 hours
-    critical: 4, // 4 hours
-  };
-  const hoursToAdd = slaHoursMap[priority] || 72;
-  const slaDueAt = new Date(now.getTime() + hoursToAdd * 60 * 60 * 1000).toISOString();
+    if (file) {
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      const maxSize = 5 * 1024 * 1024; // 5MB
 
-  // 3. Insert Complaint into PostgreSQL
-  const { data: complaint, error: complaintError } = await supabase
-    .from("complaints")
-    .insert({
-      reporter_id: user.id,
-      department_id: departmentId,
-      category_id: categoryId,
-      title,
-      description,
-      location,
-      priority,
-      status: "submitted",
-      sla_due_at: slaDueAt,
-    })
-    .select("id")
-    .single();
+      if (!allowedTypes.includes(file.type)) {
+        return { error: "File format must be JPG, PNG, or WEBP." };
+      }
+      if (file.size > maxSize) {
+        return { error: "File size exceeds maximum 5MB limit." };
+      }
 
-  if (complaintError || !complaint) {
-    return { error: complaintError?.message || "Failed to submit complaint." };
-  }
+      const fileExt = file.name.split(".").pop();
+      const filePath = `${user.id}/${complaint.id}_${Date.now()}.${fileExt}`;
 
-  // 4. Handle Optional Photo Evidence Upload
-  let file: File | null = null;
-  for (const [key, value] of formData.entries()) {
+      const { error: uploadError } = await supabase.storage
+        .from("complaint-evidence")
+        .upload(filePath, file);
+
+      if (!uploadError) {
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("complaint-evidence").getPublicUrl(filePath);
+
+        await supabase.from("attachments").insert({
+          complaint_id: complaint.id,
+          uploader_id: user.id,
+          file_url: publicUrl,
+          file_type: file.type,
+          file_size_bytes: file.size,
+          attachment_type: "initial_evidence",
+        });
+      }
+    }
+
+    redirect("/student/dashboard");
+  } catch (err: unknown) {
+    // Re-throw Next.js redirect exceptions so navigation proceeds naturally
     if (
-      (key.endsWith("image") || key.endsWith("evidenceFile")) &&
-      typeof value === "object" &&
-      value !== null &&
-      "size" in value &&
-      "name" in value &&
-      "type" in value &&
-      typeof (value as { size: unknown }).size === "number" &&
-      (value as { size: number }).size > 0
+      typeof err === "object" &&
+      err !== null &&
+      "digest" in err &&
+      typeof (err as { digest: string }).digest === "string" &&
+      (err as { digest: string }).digest.startsWith("NEXT_REDIRECT")
     ) {
-      file = value as unknown as File;
-      break;
+      throw err;
     }
+
+    console.error("Unhandled error in createComplaintAction:", err);
+    return {
+      error: err instanceof Error ? err.message : "An unexpected error occurred while submitting your ticket.",
+    };
   }
-
-  if (file) {
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-    const maxSize = 5 * 1024 * 1024; // 5MB
-
-    if (!allowedTypes.includes(file.type)) {
-      return { error: "File format must be JPG, PNG, or WEBP." };
-    }
-    if (file.size > maxSize) {
-      return { error: "File size exceeds maximum 5MB limit." };
-    }
-
-    const fileExt = file.name.split(".").pop();
-    const filePath = `${user.id}/${complaint.id}_${Date.now()}.${fileExt}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("complaint-evidence")
-      .upload(filePath, file);
-
-    if (!uploadError) {
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("complaint-evidence").getPublicUrl(filePath);
-
-      await supabase.from("attachments").insert({
-        complaint_id: complaint.id,
-        uploader_id: user.id,
-        file_url: publicUrl,
-        file_type: file.type,
-        file_size_bytes: file.size,
-        attachment_type: "initial_evidence",
-      });
-    }
-  }
-
-  redirect("/student/dashboard");
 }

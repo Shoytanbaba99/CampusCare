@@ -62,7 +62,7 @@ export default async function StudentDashboardPage() {
         </div>
         <Link
           href="/student/complaints/new"
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-[#042014] font-extrabold text-xs shadow-md shadow-emerald-500/20 btn-care self-start sm:self-auto"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-[#042014] font-extrabold text-xs shadow-md shadow-emerald-500/20 btn-care self-start sm:self-auto active:scale-[0.98] transition-transform duration-150 ease-out"
         >
           <Plus className="w-4 h-4 text-[#042014]" />
           <span>NEW TICKET REPORT</span>
@@ -71,7 +71,7 @@ export default async function StudentDashboardPage() {
 
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="care-panel care-panel-hover rounded-xl p-5 space-y-2">
+        <div className="care-panel care-panel-hover rounded-xl p-6 sm:p-8 space-y-2 shadow-[0_8px_30px_rgb(16,185,129,0.08)]">
           <div className="flex items-center justify-between text-[#A7F3D0]/80">
             <span className="text-xs font-semibold uppercase tracking-wider">Total Complaints</span>
             <FileText className="w-5 h-5 text-[#10B981]" />
@@ -79,7 +79,7 @@ export default async function StudentDashboardPage() {
           <p className="text-3xl font-bold tracking-tight text-[#ECFDF5] font-display">{totalCount}</p>
         </div>
 
-        <div className="care-panel care-panel-hover rounded-xl p-5 space-y-2">
+        <div className="care-panel care-panel-hover rounded-xl p-6 sm:p-8 space-y-2 shadow-[0_8px_30px_rgb(16,185,129,0.08)]">
           <div className="flex items-center justify-between text-[#A7F3D0]/80">
             <span className="text-xs font-semibold uppercase tracking-wider">Active / Pending</span>
             <Clock className="w-5 h-5 text-amber-400" />
@@ -87,7 +87,7 @@ export default async function StudentDashboardPage() {
           <p className="text-3xl font-bold tracking-tight text-[#ECFDF5] font-display">{activeCount}</p>
         </div>
 
-        <div className="care-panel care-panel-hover rounded-xl p-5 space-y-2">
+        <div className="care-panel care-panel-hover rounded-xl p-6 sm:p-8 space-y-2 shadow-[0_8px_30px_rgb(16,185,129,0.08)]">
           <div className="flex items-center justify-between text-[#A7F3D0]/80">
             <span className="text-xs font-semibold uppercase tracking-wider">Resolved / Closed</span>
             <CheckCircle2 className="w-5 h-5 text-[#34D399]" />
@@ -97,7 +97,7 @@ export default async function StudentDashboardPage() {
       </div>
 
       {/* Complaints List Table */}
-      <div className="care-panel rounded-xl overflow-hidden shadow-2xl">
+      <div className="care-panel rounded-xl overflow-hidden shadow-[0_8px_30px_rgb(16,185,129,0.08)]">
         <div className="px-6 py-4 border-b border-[#1D4A38] flex items-center justify-between">
           <h2 className="font-semibold text-base text-[#ECFDF5] font-display">Recent Ticket Feed</h2>
           <span className="text-xs text-[#A7F3D0]/80">
@@ -122,7 +122,7 @@ export default async function StudentDashboardPage() {
             </div>
             <Link
               href="/student/complaints/new"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#10B981] text-white text-xs font-bold hover:bg-[#059669] btn-care"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#10B981] text-white text-xs font-bold hover:bg-[#059669] btn-care active:scale-[0.98] transition-transform duration-150 ease-out shadow-[0_8px_30px_rgb(16,185,129,0.08)]"
             >
               <Plus className="w-4 h-4" />
               <span>Submit First Complaint</span>
@@ -141,7 +141,7 @@ export default async function StudentDashboardPage() {
               return (
                 <div
                   key={item.id}
-                  className="p-5 hover:bg-[#153326]/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  className="p-6 sm:p-8 hover:bg-[#153326]/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
                   <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
@@ -171,10 +171,10 @@ export default async function StudentDashboardPage() {
 
                   <Link
                     href={`/student/complaints/${item.id}`}
-                    className="inline-flex items-center gap-1 text-xs font-bold text-[#10B981] hover:underline shrink-0"
+                    className="group inline-flex items-center gap-1 text-xs font-bold text-[#10B981] hover:underline shrink-0"
                   >
                     <span>View Timeline</span>
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200 ease-out" />
                   </Link>
                 </div>
               );
