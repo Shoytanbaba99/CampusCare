@@ -20,6 +20,7 @@ import {
   Droplet,
   ChevronDown,
   Check,
+  UserCheck,
 } from "lucide-react";
 
 interface Department {
@@ -46,6 +47,7 @@ export default function ComplaintFormClient({ departments, categories }: Complai
   const [isDeptOpen, setIsDeptOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [isCatOpen, setIsCatOpen] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState(false);
 
   // Derived state computed directly during render (prevents React 19 cascading render warnings)
   const activeDeptId = (selectedDeptId && departments.some((d) => d.id === selectedDeptId))
@@ -355,6 +357,33 @@ export default function ComplaintFormClient({ departments, categories }: Complai
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Anonymous Toggle */}
+          <div className="space-y-2">
+            <input type="hidden" name="isAnonymous" value={isAnonymous ? "true" : "false"} />
+            <button
+              type="button"
+              onClick={() => setIsAnonymous(!isAnonymous)}
+              className={`w-full group relative flex items-center justify-between p-5 rounded-[2rem] border transition-[background-color,border-color,transform] duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98] ${
+                isAnonymous 
+                  ? "bg-[#07130E] border-[#10B981]/50 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" 
+                  : "bg-[#07130E] border-[#1D4A38] hover:border-[#10B981]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)]"
+              }`}
+            >
+              <div className="flex items-center gap-4">
+                <div className={`w-12 h-12 flex items-center justify-center rounded-[calc(2rem-0.5rem)] transition-colors duration-700 ${isAnonymous ? "bg-[#10B981]/20 text-[#10B981]" : "bg-[#0E2219] text-[#A7F3D0]/60"}`}>
+                  <UserCheck className="w-5 h-5" />
+                </div>
+                <div className="text-left">
+                  <h3 className={`text-base font-bold transition-colors duration-700 ${isAnonymous ? "text-[#10B981]" : "text-[#ECFDF5]"}`}>Submit Anonymously</h3>
+                  <p className="text-sm text-[#A7F3D0]/60 mt-0.5">Your name will be hidden from staff and public tracking.</p>
+                </div>
+              </div>
+              <div className={`w-14 h-8 rounded-full p-1 flex transition-colors duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] ${isAnonymous ? "bg-[#10B981]" : "bg-[#0E2219] border border-[#1D4A38]"}`}>
+                <div className={`w-6 h-6 rounded-full bg-[#042014] shadow-sm transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] ${isAnonymous ? "translate-x-6" : "translate-x-0"}`} />
+              </div>
+            </button>
           </div>
 
           {/* Submit Action Button */}

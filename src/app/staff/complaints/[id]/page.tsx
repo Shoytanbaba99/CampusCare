@@ -29,7 +29,7 @@ export default async function StaffComplaintDetailPage({ params }: StaffComplain
     redirect("/login");
   }
 
-  // Fetch Complaint details with department, category, attachments, and progress notes
+  // Fetch Complaint details with department, category, attachments, progress notes, and reporter
   const { data: complaint, error } = await supabase
     .from("complaints")
     .select(`
@@ -37,7 +37,8 @@ export default async function StaffComplaintDetailPage({ params }: StaffComplain
       departments (id, name, code),
       categories (id, name),
       attachments (*),
-      progress_notes (*, users (full_name, role))
+      progress_notes (*, users (full_name, role)),
+      reporter:users!reporter_id(full_name, email)
     `)
     .eq("id", id)
     .single();
@@ -109,7 +110,19 @@ export default async function StaffComplaintDetailPage({ params }: StaffComplain
         </div>
 
         {/* Info Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-sans text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 font-sans text-xs">
+          <div className="p-4 rounded-xl bg-[#07130E] border border-[#1D4A38] space-y-1">
+            <span className="text-[#A7F3D0]/70 font-semibold flex items-center gap-1.5">
+              <User className="w-3.5 h-3.5 text-[#10B981]" />
+              REPORTER
+            </span>
+            <p className="font-bold text-[#ECFDF5] text-sm">
+              {complaint.is_anonymous
+                ? "Anonymous Student"
+                : (Array.isArray(complaint.reporter) ? complaint.reporter[0]?.full_name : complaint.reporter?.full_name) || "Student User"}
+            </p>
+          </div>
+
           <div className="p-4 rounded-xl bg-[#07130E] border border-[#1D4A38] space-y-1">
             <span className="text-[#A7F3D0]/70 font-semibold flex items-center gap-1.5">
               <Building2 className="w-3.5 h-3.5 text-[#10B981]" />

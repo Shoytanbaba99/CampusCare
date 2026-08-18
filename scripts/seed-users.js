@@ -83,7 +83,7 @@ async function seed() {
   const users = [
     { email: "admin@campuscare.edu", password: "Admin123!", full_name: "System Administrator", role: "admin" },
     { email: "staff.it@campuscare.edu", password: "Staff123!", full_name: "IT Helpdesk", role: "staff", department_id: "33333333-3333-3333-3333-333333333333" },
-    { email: "student@campuscare.edu", password: "Student123!", full_name: "Student User", role: "student" },
+    { email: "student@campuscare.edu", password: "Student123!", full_name: "Alex Johnson", role: "student" },
   ];
 
   for (const u of users) {

@@ -48,11 +48,12 @@ export default async function StaffDashboardPage() {
       location,
       priority,
       status,
+      is_anonymous,
       created_at,
       sla_due_at,
       departments(name),
       categories(name),
-      reporter:users!complaints_reporter_id_fkey(full_name)
+      reporter:users!reporter_id(full_name)
     `)
     .order("created_at", { ascending: false });
 
@@ -118,8 +119,8 @@ export default async function StaffDashboardPage() {
           <p className="text-3xl font-bold tracking-tight text-[#ECFDF5] font-display">{resolvedCount}</p>
         </div>
 
-        <div className="care-panel care-panel-hover rounded-xl p-6 sm:p-8 space-y-2 border-red-500/30 shadow-[0_8px_30px_rgb(16,185,129,0.08)]">
-          <div className="flex items-center justify-between text-red-400">
+        <div className="care-panel care-panel-hover rounded-xl p-6 sm:p-8 space-y-2 shadow-[0_8px_30px_rgb(16,185,129,0.08)]">
+          <div className="flex items-center justify-between text-[#A7F3D0]/80">
             <span className="text-xs font-semibold uppercase tracking-wider">Overdue SLA</span>
             <AlertTriangle className="w-5 h-5 text-red-400" />
           </div>
@@ -127,13 +128,15 @@ export default async function StaffDashboardPage() {
         </div>
       </div>
 
-      {/* Complaints Queue Table */}
+      {/* Main Table / List */}
       <div className="care-panel rounded-xl overflow-hidden shadow-[0_8px_30px_rgb(16,185,129,0.08)]">
-        <div className="px-6 py-4 border-b border-[#1D4A38] flex items-center justify-between">
-          <h2 className="font-semibold text-base text-[#ECFDF5] font-display">Assigned Department Feed</h2>
-          <span className="text-xs text-[#A7F3D0]/80">
-            TOTAL RECORDS: {totalCount}
-          </span>
+        <div className="p-6 sm:p-8 border-b border-[#1D4A38] bg-[#0E2219]/60">
+          <h2 className="text-base font-bold text-[#ECFDF5] font-display">
+            Assigned Complaints Queue
+          </h2>
+          <p className="text-xs text-[#A7F3D0]/80 mt-0.5">
+            Click any ticket to update progress status, add work logs, or mark as resolved.
+          </p>
         </div>
 
         {error ? (
@@ -155,9 +158,10 @@ export default async function StaffDashboardPage() {
         ) : (
           <div className="divide-y divide-[#1D4A38]">
             {complaints.map((item) => {
-              const reporterName = Array.isArray(item.reporter)
+              const rawName = Array.isArray(item.reporter)
                 ? item.reporter[0]?.full_name
-                : (item.reporter as { full_name: string } | null)?.full_name || "Student";
+                : (item.reporter as { full_name: string } | null)?.full_name;
+              const reporterName = item.is_anonymous ? "Anonymous Student" : (rawName || "Student User");
               const isOverdue =
                 new Date(item.sla_due_at) < now && item.status !== "closed" && item.status !== "resolved";
 

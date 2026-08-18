@@ -15,6 +15,7 @@ const complaintSchema = z.object({
   location: z.string().min(3, "Location details must be at least 3 characters long."),
   priority: z.enum(["low", "medium", "high", "critical"]),
   description: z.string().min(10, "Please provide a detailed description (at least 10 characters)."),
+  isAnonymous: z.boolean().optional().default(false),
 });
 
 // Helper function to extract form values even if React 19 / Next.js 16 prefixes key names (e.g. _1_departmentId, $ACTION_...)
@@ -105,6 +106,7 @@ export async function createComplaintAction(prevState: unknown, formData: FormDa
       location: getFormField(formData, "location"),
       priority: getFormField(formData, "priority") || "medium",
       description: getFormField(formData, "description"),
+      isAnonymous: formData.get("isAnonymous") === "true",
     };
 
     const validated = complaintSchema.safeParse(rawData);
@@ -112,7 +114,7 @@ export async function createComplaintAction(prevState: unknown, formData: FormDa
       return { error: validated.error.issues[0]?.message || "Invalid form data." };
     }
 
-    const { title, location, priority, description } = validated.data;
+    const { title, location, priority, description, isAnonymous } = validated.data;
 
     // Rate Limiting Check: Max 3 complaint submissions per 60 seconds per user
     if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
@@ -138,6 +140,7 @@ export async function createComplaintAction(prevState: unknown, formData: FormDa
     const slaDueAt = new Date(now.getTime() + hoursToAdd * 60 * 60 * 1000).toISOString();
 
     const fallbackTicket = `CMP-${now.getFullYear()}-${Date.now().toString().slice(-4)}${Math.floor(100 + Math.random() * 900)}`;
+    const trackingCode = 'CC-ANON-' + Math.random().toString(36).substring(2, 8).toUpperCase();
 
     // 3. Insert Complaint into PostgreSQL (.maybeSingle prevents throwing on insert query)
     const { data: complaint, error: complaintError } = await supabase
@@ -153,6 +156,8 @@ export async function createComplaintAction(prevState: unknown, formData: FormDa
         priority,
         status: "submitted",
         sla_due_at: slaDueAt,
+        is_anonymous: isAnonymous,
+        tracking_code: trackingCode,
       })
       .select("id")
       .maybeSingle();
@@ -223,4 +228,63 @@ export async function createComplaintAction(prevState: unknown, formData: FormDa
   // Next.js Best Practice: Always place redirect() OUTSIDE the try/catch block
   revalidatePath("/student/dashboard");
   redirect("/student/dashboard");
+}
+
+export async function trackComplaintAction(trackingCode: string) {
+  try {
+    const supabase = await createClient();
+
+    const cleanCode = trackingCode.trim().toUpperCase();
+
+    const { data: complaint, error: complaintError } = await supabase
+      .from("complaints")
+      .select(`
+        *,
+        departments(name),
+        categories(name),
+        progress_notes(*),
+        attachments(*)
+      `)
+      .or(`tracking_code.eq.${cleanCode},ticket_number.eq.${cleanCode}`)
+      .maybeSingle();
+
+    if (complaintError || !complaint) {
+      return { error: "No complaint found with this ticket number or tracking code." };
+    }
+
+    let reporterName = "Anonymous";
+    if (!complaint.is_anonymous) {
+      const { data: userProfile } = await supabase
+        .from("users")
+        .select("full_name")
+        .eq("id", complaint.reporter_id)
+        .maybeSingle();
+      
+      if (userProfile?.full_name) {
+        reporterName = userProfile.full_name;
+      }
+    }
+
+    // Mask reporter identity if is_anonymous is true
+    const maskedComplaint = {
+      ...complaint,
+      reporter_name: reporterName,
+    };
+
+    // Filter out internal progress notes
+    const notes = complaint.progress_notes?.filter((note: any) => !note.is_internal) || [];
+    const attachments = complaint.attachments || [];
+
+    return { 
+      success: true, 
+      complaint: maskedComplaint, 
+      notes, 
+      attachments 
+    };
+  } catch (err: unknown) {
+    console.error("Unhandled error in trackComplaintAction:", err);
+    return {
+      error: "An unexpected error occurred while looking up your complaint.",
+    };
+  }
 }

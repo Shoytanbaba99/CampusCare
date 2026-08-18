@@ -51,14 +51,15 @@ export default async function AdminDashboardPage() {
       location,
       priority,
       status,
+      is_anonymous,
       created_at,
       sla_due_at,
       department_id,
       assigned_staff_id,
       departments(name),
       categories(name),
-      reporter:users!complaints_reporter_id_fkey(full_name),
-      assigned_staff:users!complaints_assigned_staff_id_fkey(full_name)
+      reporter:users!reporter_id(full_name),
+      assigned_staff:users!assigned_staff_id(full_name)
     `)
     .order("created_at", { ascending: false });
 
@@ -70,9 +71,10 @@ export default async function AdminDashboardPage() {
     const catName = Array.isArray(item.categories)
       ? item.categories[0]?.name
       : (item.categories as { name: string } | null)?.name || "General";
-    const reporterName = Array.isArray(item.reporter)
+    const rawReporter = Array.isArray(item.reporter)
       ? item.reporter[0]?.full_name
-      : (item.reporter as { full_name: string } | null)?.full_name || "Student";
+      : (item.reporter as { full_name: string } | null)?.full_name;
+    const reporterName = item.is_anonymous ? "Anonymous Student" : (rawReporter || "Student User");
     const staffName = Array.isArray(item.assigned_staff)
       ? item.assigned_staff[0]?.full_name
       : (item.assigned_staff as { full_name: string } | null)?.full_name || null;
@@ -84,6 +86,7 @@ export default async function AdminDashboardPage() {
       location: item.location,
       priority: item.priority,
       status: item.status,
+      is_anonymous: item.is_anonymous,
       created_at: item.created_at,
       sla_due_at: item.sla_due_at,
       department_id: item.department_id,

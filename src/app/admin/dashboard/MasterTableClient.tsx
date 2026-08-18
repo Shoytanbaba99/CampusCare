@@ -36,6 +36,7 @@ export interface MasterComplaintRow {
   department_name: string;
   category_name: string;
   reporter_name: string;
+  is_anonymous?: boolean;
   assigned_staff_name: string | null;
 }
 
@@ -116,7 +117,9 @@ export default function MasterTableClient({
         accessorKey: "reporter_name",
         header: "Reporter",
         cell: ({ row }) => (
-          <span className="text-xs text-[#A7F3D0]">{row.original.reporter_name}</span>
+          <span className="text-xs text-[#A7F3D0]">
+            {row.original.is_anonymous ? "Anonymous Student" : row.original.reporter_name}
+          </span>
         ),
       },
       {

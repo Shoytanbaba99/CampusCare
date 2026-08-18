@@ -35,6 +35,13 @@ export default function LandingPage() {
 
             <div className="flex items-center gap-3 font-sans text-xs" suppressHydrationWarning>
               <Link
+                href="/track"
+                suppressHydrationWarning
+                className="px-3.5 py-2 rounded-xl text-[#10B981] bg-[#10B981]/10 hover:bg-[#10B981]/20 font-bold border border-[#10B981]/30 transition-all flex items-center gap-1.5"
+              >
+                <span>Track Ticket</span>
+              </Link>
+              <Link
                 href="/login"
                 suppressHydrationWarning
                 className="px-4 py-2 rounded-xl text-[#A7F3D0] hover:text-[#ECFDF5] hover:bg-[#153326] font-semibold transition-all"

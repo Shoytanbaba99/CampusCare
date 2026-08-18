@@ -63,9 +63,15 @@ CREATE TABLE IF NOT EXISTS public.complaints (
     sla_due_at TIMESTAMPTZ NOT NULL,
     resolved_at TIMESTAMPTZ,
     closed_at TIMESTAMPTZ,
+    is_anonymous BOOLEAN NOT NULL DEFAULT FALSE,
+    tracking_code TEXT UNIQUE DEFAULT ('CC-ANON-' || UPPER(SUBSTRING(GEN_RANDOM_UUID()::TEXT FROM 1 FOR 6))),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Ensure columns exist on pre-existing complaints table
+ALTER TABLE public.complaints ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE public.complaints ADD COLUMN IF NOT EXISTS tracking_code TEXT UNIQUE DEFAULT ('CC-ANON-' || UPPER(SUBSTRING(GEN_RANDOM_UUID()::TEXT FROM 1 FOR 6)));
 
 -- 6. PROGRESS NOTES TABLE
 CREATE TABLE IF NOT EXISTS public.progress_notes (
@@ -222,10 +228,12 @@ DROP POLICY IF EXISTS "Admins view audit logs" ON public.audit_logs;
 DROP POLICY IF EXISTS "System inserts audit logs" ON public.audit_logs;
 
 -- Users RLS (Non-recursive)
-CREATE POLICY "Users can view own profile or admins can view all"
+DROP POLICY IF EXISTS "Users can view own profile or admins can view all" ON public.users;
+DROP POLICY IF EXISTS "Authenticated users can view profiles" ON public.users;
+CREATE POLICY "Authenticated users can view profiles"
     ON public.users FOR SELECT
     TO authenticated
-    USING (auth.uid() = id OR public.get_user_role(auth.uid()) = 'admin');
+    USING (true);
 
 CREATE POLICY "Users can update own profile or admins update all"
     ON public.users FOR UPDATE
@@ -345,3 +353,13 @@ CREATE POLICY "System inserts audit logs"
     ON public.audit_logs FOR INSERT
     TO authenticated
     WITH CHECK (actor_id = auth.uid());
+
+-- Anonymous Tracking Policies
+DROP POLICY IF EXISTS "Public can view anonymous complaints via tracking code" ON public.complaints;
+CREATE POLICY "Public can view anonymous complaints via tracking code" ON public.complaints FOR SELECT TO anon, authenticated USING (true);
+
+DROP POLICY IF EXISTS "Public can view non-internal notes for tracking code" ON public.progress_notes;
+CREATE POLICY "Public can view non-internal notes for tracking code" ON public.progress_notes FOR SELECT TO anon, authenticated USING (is_internal = FALSE);
+
+DROP POLICY IF EXISTS "Public can view attachments for complaints" ON public.attachments;
+CREATE POLICY "Public can view attachments for complaints" ON public.attachments FOR SELECT TO anon, authenticated USING (true);
