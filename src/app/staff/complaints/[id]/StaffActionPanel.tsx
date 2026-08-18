@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -8,6 +8,7 @@ import {
   addProgressNoteAction,
   overrideSlaDateAction,
 } from "../../actions";
+import { takeoverLiveChatAction, postStaffChatMessageAction, fetchChatStateAction } from "@/app/chat/actions";
 import {
   Wrench,
   CheckCircle2,
@@ -16,6 +17,7 @@ import {
   Send,
   Clock,
   Calendar,
+  MessageCircle,
 } from "lucide-react";
 
 interface StaffActionPanelProps {
@@ -42,7 +44,44 @@ export default function StaffActionPanel({
   const [slaDate, setSlaDate] = useState("");
   const [slaReason, setSlaReason] = useState("");
 
+  const [isLiveChatActive, setIsLiveChatActive] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [chatMsgCount, setChatMsgCount] = useState(0);
+
   const isAssignedToMe = assignedStaffId === currentUserId;
+
+  useEffect(() => {
+    const checkChat = async () => {
+      const res = await fetchChatStateAction(complaintId);
+      if (res.success && res.state) {
+        setChatMsgCount(res.state.messages.length);
+        if (res.state.mode === "staff") {
+          setIsLiveChatActive(true);
+        }
+      }
+    };
+    checkChat();
+    const interval = setInterval(checkChat, 3000);
+    return () => clearInterval(interval);
+  }, [complaintId]);
+
+  const handleTakeoverChat = async () => {
+    setIsSubmitting(true);
+    await takeoverLiveChatAction(complaintId, "Staff Member");
+    setIsLiveChatActive(true);
+    setIsSubmitting(false);
+  };
+
+  const handleSendChatMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+    
+    setIsSubmitting(true);
+    await postStaffChatMessageAction(complaintId, chatInput, "Staff Member");
+    setChatInput("");
+    toast.success("Message sent to live chat");
+    setIsSubmitting(false);
+  };
 
   const handleStatusChange = async (newStatus: string) => {
     setIsSubmitting(true);
@@ -225,6 +264,47 @@ export default function StaffActionPanel({
               <CheckCircle2 className="w-4 h-4 text-[#042014]" />
               <span>Mark Resolved & Ready</span>
             </button>
+          )}
+
+          {!isLiveChatActive ? (
+            <button
+              onClick={handleTakeoverChat}
+              disabled={isSubmitting}
+              className={`inline-flex items-center gap-2 py-2.5 px-4 font-extrabold text-xs rounded-xl border shadow-md btn-care disabled:opacity-50 active:scale-[0.98] transition-all duration-150 ease-out ${
+                chatMsgCount > 0
+                  ? "bg-[#10B981] hover:bg-[#059669] text-[#042014] border-[#10B981] animate-pulse shadow-[0_0_20px_rgba(16,185,129,0.5)]"
+                  : "bg-[#153326] hover:bg-[#1D4A38] text-[#34D399] border-[#1D4A38] shadow-emerald-950/40"
+              }`}
+            >
+              <MessageCircle className={`w-4 h-4 ${chatMsgCount > 0 ? "text-[#042014]" : "text-[#10B981]"}`} />
+              <span>
+                {chatMsgCount > 0
+                  ? `💬 Student Active in Live Chat (${chatMsgCount} msgs)`
+                  : "💬 Join Live Chat Session"}
+              </span>
+            </button>
+          ) : (
+            <div className="w-full mt-4 p-4 bg-[#07130E] border border-[#1D4A38] rounded-2xl animate-in fade-in zoom-in-95 duration-200">
+              <label className="block text-xs font-bold text-[#A7F3D0] uppercase tracking-wider mb-2">
+                Live Staff Messaging
+              </label>
+              <form onSubmit={handleSendChatMessage} className="flex gap-2">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder="Type a live message to the student..."
+                  className="flex-1 px-3 py-2 bg-[#0E2219] border border-[#1D4A38] rounded-xl text-xs text-[#ECFDF5] placeholder-[#A7F3D0]/60 focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+                />
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !chatInput.trim()}
+                  className="px-4 py-2 bg-[#10B981] hover:bg-[#059669] text-[#042014] font-extrabold text-xs rounded-xl btn-care disabled:opacity-50 active:scale-[0.98] transition-transform duration-150 ease-out"
+                >
+                  Send
+                </button>
+              </form>
+            </div>
           )}
         </div>
       </div>

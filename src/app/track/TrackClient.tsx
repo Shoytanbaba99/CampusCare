@@ -18,6 +18,7 @@ import {
   Paperclip,
   ExternalLink,
 } from "lucide-react";
+import FloatingLiveChat from "@/components/FloatingLiveChat";
 
 export default function TrackClient() {
   const [code, setCode] = useState("");
@@ -58,11 +59,12 @@ export default function TrackClient() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
+    <div className="max-w-3xl mx-auto space-y-8" suppressHydrationWarning>
       {/* Navigation */}
       <div className="flex items-center justify-between">
         <Link
           href="/"
+          suppressHydrationWarning
           className="inline-flex items-center gap-2 text-sm text-[#A7F3D0]/80 hover:text-[#ECFDF5] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -101,7 +103,8 @@ export default function TrackClient() {
           </div>
           <button
             type="submit"
-            disabled={isPending || !code.trim()}
+            disabled={Boolean(isPending || !code.trim())}
+            suppressHydrationWarning
             className="py-3.5 px-6 bg-[#10B981] hover:bg-[#059669] text-[#042014] font-extrabold text-base rounded-xl shadow-lg shadow-emerald-500/25 btn-care disabled:opacity-50 active:scale-[0.98] transition-transform duration-150 ease-out"
           >
             {isPending ? "Searching..." : "Track Status"}
@@ -227,6 +230,26 @@ export default function TrackClient() {
             )}
           </div>
         </div>
+      )}
+
+      {result && result.complaint && (
+        <FloatingLiveChat
+          complaintId={result.complaint.id}
+          ticketContext={{
+            ticketNumber: result.complaint.ticket_number,
+            title: result.complaint.title,
+            description: result.complaint.description,
+            departmentName: result.complaint.departments?.name || "Maintenance",
+            categoryName: result.complaint.categories?.name || "General",
+            location: result.complaint.location,
+            priority: result.complaint.priority,
+            status: result.complaint.status,
+            slaDueAt: result.complaint.sla_due_at,
+            reporterName: result.complaint.is_anonymous ? "Anonymous Student" : result.complaint.reporter_name,
+            isAnonymous: result.complaint.is_anonymous,
+            progressNotesSummary: (result.notes || []).map((n: { note_text: string }) => n.note_text).join("; "),
+          }}
+        />
       )}
     </div>
   );

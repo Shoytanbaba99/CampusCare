@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { getActiveChatComplaintIds } from "@/lib/chatStore";
 import MasterTableClient, { type MasterComplaintRow } from "./MasterTableClient";
 import {
   FileText,
@@ -22,13 +23,15 @@ export default async function AdminDashboardPage() {
   // Fetch admin user profile verification
   const { data: profile } = await supabase
     .from("users")
-    .select("role")
+    .select("role, full_name")
     .eq("id", user.id)
     .single();
 
   if (profile?.role !== "admin") {
     redirect("/student/dashboard");
   }
+
+  const activeChatIds = await getActiveChatComplaintIds();
 
   // Fetch departments & staff list for modal selectors
   const { data: departments } = await supabase
@@ -161,6 +164,8 @@ export default async function AdminDashboardPage() {
         complaints={complaints}
         departments={departments || []}
         staffList={staffList || []}
+        currentAdminName={profile?.full_name || "System Administrator"}
+        activeChatIds={activeChatIds}
       />
     </div>
   );

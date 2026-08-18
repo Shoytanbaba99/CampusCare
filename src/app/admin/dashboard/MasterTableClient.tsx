@@ -20,7 +20,9 @@ import {
   X,
   Send,
   AlertCircle,
+  MessageSquare,
 } from "lucide-react";
+import FloatingLiveChat from "@/components/FloatingLiveChat";
 
 export interface MasterComplaintRow {
   id: string;
@@ -56,12 +58,16 @@ interface MasterTableClientProps {
   complaints: MasterComplaintRow[];
   departments: Department[];
   staffList: StaffUser[];
+  currentAdminName?: string;
+  activeChatIds?: string[];
 }
 
 export default function MasterTableClient({
   complaints,
   departments,
   staffList,
+  currentAdminName = "System Administrator",
+  activeChatIds = [],
 }: MasterTableClientProps) {
   "use no memo";
 
@@ -70,6 +76,7 @@ export default function MasterTableClient({
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [deptFilter, setDeptFilter] = useState("all");
   const [selectedTicket, setSelectedTicket] = useState<MasterComplaintRow | null>(null);
+  const [selectedChatTicket, setSelectedChatTicket] = useState<MasterComplaintRow | null>(null);
 
   // Filter complaints list based on dropdown selectors
   const filteredData = useMemo(() => {
@@ -143,15 +150,31 @@ export default function MasterTableClient({
       },
       {
         id: "actions",
-        header: "Dispatch",
-        cell: ({ row }) => (
-          <button
-            onClick={() => setSelectedTicket(row.original)}
-            className="px-3 py-1 text-xs font-bold rounded-lg bg-[#153326] text-[#10B981] hover:border-[#10B981] border border-[#1D4A38] btn-care active:scale-[0.98] transition-transform duration-150 ease-out"
-          >
-            Re-assign
-          </button>
-        ),
+        header: "Actions",
+        cell: ({ row }) => {
+          const hasActiveChat = activeChatIds.includes(row.original.id);
+          return (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setSelectedTicket(row.original)}
+                className="px-2.5 py-1 text-xs font-bold rounded-lg bg-[#153326] text-[#10B981] hover:border-[#10B981] border border-[#1D4A38] btn-care active:scale-[0.98] transition-transform duration-150 ease-out"
+              >
+                Re-assign
+              </button>
+              <button
+                onClick={() => setSelectedChatTicket(row.original)}
+                className={`px-2.5 py-1 text-xs font-extrabold rounded-lg border btn-care active:scale-[0.98] transition-all duration-150 ease-out flex items-center gap-1 ${
+                  hasActiveChat
+                    ? "bg-[#10B981] text-[#042014] border-[#10B981] animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.5)] font-extrabold"
+                    : "bg-[#10B981]/15 text-[#34D399] hover:bg-[#10B981] hover:text-[#042014] border-[#10B981]/30"
+                }`}
+              >
+                <MessageSquare className="w-3 h-3" />
+                <span>{hasActiveChat ? "💬 Active Chat" : "Chat"}</span>
+              </button>
+            </div>
+          );
+        },
       },
     ],
     []
@@ -314,6 +337,26 @@ export default function MasterTableClient({
           departments={departments}
           staffList={staffList}
           onClose={() => setSelectedTicket(null)}
+        />
+      )}
+
+      {selectedChatTicket && (
+        <FloatingLiveChat
+          complaintId={selectedChatTicket.id}
+          userRole="admin"
+          userName={currentAdminName}
+          ticketContext={{
+            ticketNumber: selectedChatTicket.ticket_number,
+            title: selectedChatTicket.title,
+            departmentName: selectedChatTicket.department_name,
+            categoryName: selectedChatTicket.category_name,
+            location: selectedChatTicket.location,
+            priority: selectedChatTicket.priority,
+            status: selectedChatTicket.status,
+            slaDueAt: selectedChatTicket.sla_due_at,
+            reporterName: selectedChatTicket.is_anonymous ? "Anonymous Student" : selectedChatTicket.reporter_name,
+            isAnonymous: selectedChatTicket.is_anonymous,
+          }}
         />
       )}
     </div>

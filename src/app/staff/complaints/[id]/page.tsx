@@ -12,6 +12,7 @@ import {
   FileImage,
   MessageSquare,
 } from "lucide-react";
+import FloatingLiveChat from "@/components/FloatingLiveChat";
 
 interface StaffComplaintPageProps {
   params: Promise<{ id: string }>;
@@ -50,7 +51,7 @@ export default async function StaffComplaintDetailPage({ params }: StaffComplain
   // Fetch user profile to check role
   const { data: profile } = await supabase
     .from("users")
-    .select("role, department_id")
+    .select("role, department_id, full_name")
     .eq("id", user.id)
     .single();
 
@@ -250,6 +251,26 @@ export default async function StaffComplaintDetailPage({ params }: StaffComplain
           </div>
         )}
       </div>
+
+      <FloatingLiveChat
+        complaintId={id}
+        userRole="staff"
+        userName={profile?.full_name}
+        ticketContext={{
+          ticketNumber: complaint.ticket_number,
+          title: complaint.title,
+          description: complaint.description,
+          departmentName: deptName,
+          categoryName: catName,
+          location: complaint.location,
+          priority: complaint.priority,
+          status: complaint.status,
+          slaDueAt: complaint.sla_due_at,
+          reporterName: complaint.is_anonymous ? "Anonymous Student" : ((Array.isArray(complaint.reporter) ? complaint.reporter[0]?.full_name : complaint.reporter?.full_name) || "Student User"),
+          isAnonymous: complaint.is_anonymous,
+          progressNotesSummary: (progressNotes || []).map((n: { note_text: string }) => n.note_text).join("; "),
+        }}
+      />
     </div>
   );
 }

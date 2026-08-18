@@ -15,7 +15,7 @@ export default function AdminLayout({
           <div className="flex items-center justify-between h-16">
             {/* Logo & Portal Branding */}
             <div className="flex items-center gap-3">
-              <Link href="/admin/dashboard" className="flex items-center gap-2.5">
+              <Link href="/admin/dashboard" suppressHydrationWarning className="flex items-center gap-2.5">
                 <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-[#10B981] shadow-md shadow-emerald-500/20">
                   <HeartHandshake className="w-5 h-5" />
                 </div>
@@ -32,6 +32,7 @@ export default function AdminLayout({
             <nav className="flex items-center gap-2 sm:gap-4">
               <Link
                 href="/admin/dashboard"
+                suppressHydrationWarning
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-[#A7F3D0] hover:text-[#ECFDF5] hover:bg-[#153326] transition-all"
               >
                 <LayoutDashboard className="w-4 h-4 text-[#10B981]" />
@@ -39,6 +40,7 @@ export default function AdminLayout({
               </Link>
               <Link
                 href="/admin/users"
+                suppressHydrationWarning
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-[#A7F3D0] hover:text-[#ECFDF5] hover:bg-[#153326] transition-all"
               >
                 <Users className="w-4 h-4 text-[#10B981]" />
@@ -46,6 +48,7 @@ export default function AdminLayout({
               </Link>
               <Link
                 href="/admin/audit-logs"
+                suppressHydrationWarning
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-[#A7F3D0] hover:text-[#ECFDF5] hover:bg-[#153326] transition-all"
               >
                 <History className="w-4 h-4 text-[#10B981]" />

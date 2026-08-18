@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { getActiveChatComplaintIds } from "@/lib/chatStore";
 import {
   Wrench,
   Clock,
@@ -62,6 +63,7 @@ export default async function StaffDashboardPage() {
   }
 
   const { data: complaints, error } = await query;
+  const activeChatIds = await getActiveChatComplaintIds();
 
   const now = new Date();
   const totalCount = complaints?.length || 0;
@@ -179,6 +181,11 @@ export default async function StaffDashboardPage() {
                       </span>
                       <StatusBadge status={item.status} />
                       <PriorityBadge priority={item.priority} />
+                      {activeChatIds.includes(item.id) && (
+                        <span className="px-2 py-0.5 text-xs font-extrabold rounded bg-[#10B981] text-[#042014] animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.4)]">
+                          💬 ACTIVE CHAT
+                        </span>
+                      )}
                       {isOverdue && (
                         <span className="px-2 py-0.5 text-xs font-bold rounded bg-red-500/20 border border-red-500/40 text-red-400 animate-pulse">
                           OVERDUE SLA
