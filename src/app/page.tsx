@@ -3,10 +3,6 @@ import Interactive3DHero from "@/components/Interactive3DHero";
 import {
   HeartHandshake,
   ArrowRight,
-  Shield,
-  Clock,
-  CheckCircle2,
-  Users,
   Wrench,
   Building2,
   ChevronRight,
@@ -173,58 +169,31 @@ export default function LandingPage() {
 
       {/* Target Repair Deadline Breakdown */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-[#1D4A38] space-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[#34D399] text-xs font-semibold">
-              <Zap className="w-4 h-4" />
-              <span>GUARANTEED REPAIR DEADLINES</span>
-            </div>
-
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#ECFDF5] font-display">
-              Strict Priority Repair Timelines
-            </h2>
-
-            <p className="text-sm text-[#A7F3D0]/80 leading-relaxed">
-              Every complaint is assigned a guaranteed Service Level Agreement (SLA) fix deadline based on urgency. Overdue tickets flag immediately to alert department leaders.
-            </p>
-
-            <div className="grid grid-cols-2 gap-4 text-left font-sans">
-              <div className="p-4 rounded-xl bg-[#0E2219] border border-red-500/30 space-y-1">
-                <span className="text-xs font-bold text-red-400 uppercase tracking-wider">4h Urgent / Critical</span>
-                <p className="text-xl font-bold text-[#ECFDF5]">4 Hours</p>
-                <p className="text-xs text-[#A7F3D0]/80">Power outages, main pipe burst</p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-[#0E2219] border border-amber-500/30 space-y-1">
-                <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">24h High Priority</span>
-                <p className="text-xl font-bold text-[#ECFDF5]">24 Hours</p>
-                <p className="text-xs text-[#A7F3D0]/80">AC failure, network router down</p>
-              </div>
-            </div>
+        <div className="max-w-3xl mx-auto text-center space-y-6">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[#34D399] text-xs font-semibold">
+            <Zap className="w-4 h-4" />
+            <span>GUARANTEED REPAIR DEADLINES</span>
           </div>
 
-          <div className="p-6 rounded-2xl care-panel space-y-5 text-xs">
-            <div className="flex items-center justify-between border-b border-[#1D4A38] pb-3">
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-[#10B981]" />
-                <span className="font-bold text-[#ECFDF5] font-display">SYSTEM OPERATIONAL STATS</span>
-              </div>
-              <span className="text-[#34D399]">99.8% ONLINE</span>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#ECFDF5] font-display">
+            Strict Priority Repair Timelines
+          </h2>
+
+          <p className="text-sm text-[#A7F3D0]/80 leading-relaxed max-w-2xl mx-auto">
+            Every complaint is assigned a guaranteed Service Level Agreement (SLA) fix deadline based on urgency. Overdue tickets flag immediately to alert department leaders.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left font-sans pt-2">
+            <div className="p-4 rounded-xl bg-[#0E2219] border border-red-500/30 space-y-1">
+              <span className="text-xs font-bold text-red-400 uppercase tracking-wider">4h Urgent / Critical</span>
+              <p className="text-xl font-bold text-[#ECFDF5]">4 Hours</p>
+              <p className="text-xs text-[#A7F3D0]/80">Power outages, main pipe burst</p>
             </div>
 
-            <div className="space-y-3 font-sans">
-              <div className="flex items-center justify-between">
-                <span className="text-[#A7F3D0]/80">Average Resolution Time</span>
-                <span className="font-bold text-[#ECFDF5]">3.2 Hours</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[#A7F3D0]/80">Student Satisfaction Rating</span>
-                <span className="font-bold text-[#34D399]">4.9 / 5.0</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[#A7F3D0]/80">PostgreSQL RLS Latency</span>
-                <span className="font-bold text-[#ECFDF5]">&lt;8ms Query</span>
-              </div>
+            <div className="p-4 rounded-xl bg-[#0E2219] border border-amber-500/30 space-y-1">
+              <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">24h High Priority</span>
+              <p className="text-xl font-bold text-[#ECFDF5]">24 Hours</p>
+              <p className="text-xs text-[#A7F3D0]/80">AC failure, network router down</p>
             </div>
           </div>
         </div>

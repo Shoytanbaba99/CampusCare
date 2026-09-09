@@ -1,4 +1,4 @@
-# CampusCare 🏫✨
+# CampusCare
 
 **CampusCare** is a modern, full-stack campus facility management and maintenance complaint ticketing platform built with **Next.js 16 (App Router)**, **React 19 Server Actions**, **Supabase (PostgreSQL, Auth, Storage, RLS)**, and **Tailwind CSS**.
 
@@ -6,44 +6,69 @@ It streamlines campus facility upkeep by providing role-based portals for **Stud
 
 ---
 
-## 🌟 Core Features & Role Capabilities
+## 🎓 Academic Project Information
 
-### 🧑‍🎓 Student Portal & Public Lookup
-* **Ticket Submission & Anonymous Reporting:** Submit facility complaints specifying location, department, issue category, priority, and optional photo evidence. Supports optional **Submit Anonymously** mode (`CC-ANON-XXXXXX`) with strict identity masking across all staff and admin views.
-* **Dual Public Tracking Portal (`/track`):** Publicly track any ticket progress via 6-digit access code or Ticket Number (`CMP-2026-XXXXX`) without needing an account.
-* **🤖 Real-time AI Support Chatbot:** Integrated floating glassmorphism chat widget powered by AI models with multi-model fallback waterfall (`gemini-3.5-flash` → `gemini-3.1-flash-lite` → `gemini-2.5-flash` → `gemini-1.5-flash`) and context-aware ticket knowledge.
+* **Course:** CSE 416 (Software Project Design and Development)
+* **Semester:** Autumn 2026
+* **Institution:** University of Information Technology and Sciences (UITS)
+* **Supervised by:** Dr. Mahfida Amjad Dipa, Assistant Professor, Department of CSE, UITS
 
-### 👷 Staff Portal
-* **Department Queue & Real-time Chat Badges:** View isolated ticket feeds routed to your department with glowing green pulsing **`💬 ACTIVE CHAT`** badges on tickets with active student messages.
-* **1-on-1 Live Chat Takeover:** Seamlessly transition any ticket chat from AI Dispatcher mode to Staff Live mode (`"bot"` → `"staff"`) with 1-click takeover controls.
-* **Ticket Claiming & Status Updates:** Claim unassigned complaints, update status (`Submitted` → `In Progress` → `Resolved`), post work audit logs, and attach photo proof of completed work.
-* **SLA Target Management:** Override and adjust SLA completion target timestamps with audit reason tracking.
-
-### 👑 Admin Command Center
-* **Master Ticket Table & Active Chat Alerts:** Complete visibility over all campus complaints with real-time status/priority filters and pulsing **`💬 Active Chat`** badges on active rows.
-* **Super-User Admin Live Chat:** Admins can join any live chat session with senior oversight authority.
-* **Ticket Dispatch & User Management:** Reassign complaints between departments/staff and manage user roles (`Student`, `Staff`, `Admin`) with self-demotion protection.
-* **Immutable Audit Ledger:** System audit trail capturing all ticket status updates, staff reassignments, SLA date overrides, and user management events.
+### Group Members
+* **Shafayat Hossain Shafin** (ID: 0432320005101088)
+* **Md. Masud Rahman** (ID: 0432320005101064)
+* **Rudro Antony Mrong** (ID: 0432320005101059)
 
 ---
 
-## 🛠️ Tech Stack & Architecture
+## 🔑 Demo Test Accounts
 
-* **Framework:** Next.js 16 App Router & React 19 Server Actions
-* **AI Intelligence Engine:** Multi-model AI Dispatcher with automated model waterfall (`gemini-3.5-flash` / `gemini-3.1-flash-lite` / `gemini-2.5-flash` / `gemini-1.5-flash`)
-* **Real-time Ephemeral Bus & Rate Limiting:** Upstash Redis ephemeral message caching (`chat:messages:${id}`, 1-hour TTL) & sliding window rate limiting
-* **Database & Auth:** Supabase (PostgreSQL with Row Level Security, Auth, Object Storage)
-* **Styling:** Vanilla Tailwind CSS with custom emerald theme (`Caring Campus Green`), glassmorphism UI drawers, and 4-way role-based chat color hierarchy
-* **Validation:** Zod schemas for type-safe server & client form validation
-* **Icons:** Lucide React
+Use these pre-configured accounts to test each role on the platform:
+
+| Role | Email | Password | Default Portal |
+| :--- | :--- | :--- | :--- |
+| **Student** | `student@campuscare.edu` | `Student123!` | `/student/dashboard` |
+| **Staff (IT)** | `staff.it@campuscare.edu` | `Staff123!` | `/staff/dashboard` |
+| **Admin** | `admin@campuscare.edu` | `Admin123!` | `/admin/dashboard` |
+
+Login is available at `/login`. After authentication, the system automatically redirects users to their designated role portal based on database permissions.
 
 ---
 
-## 📖 Project Takeaways & Retrospective
+## 🧭 How to Navigate the Website
 
-For detailed post-mortem insights, database RLS optimization notes, React 19 form handling patterns, and architectural takeaways, read the full project takeaways document:
+### 1. Student Portal (`/student/dashboard`)
+* **Dashboard Overview:** Displays metric cards for total, in-progress, and resolved complaints, followed by a list of personal tickets with status badges and SLA timers.
+* **Submit a Complaint (`/student/complaints/new`):** Fill in campus location, building details, maintenance department, category, priority, description, and optional photo attachment.
+* **Anonymous Mode:** Toggle "Submit Anonymously" on the form to mask your identity. The system generates a 6-character tracking code (`CC-ANON-XXXXXX`) so staff and admins cannot see who submitted it.
+* **Ticket Details & Chat (`/student/complaints/[id]`):** View ticket timeline, status history, and staff progress notes. The floating chat drawer allows asking questions about the ticket, receiving automated assistance, or chatting directly with assigned staff once claimed.
 
-👉 [**Project Retrospective & Technical Takeaways**](.mentor/takeaways.md)
+### 2. Staff Portal (`/staff/dashboard`)
+* **Department Queue:** Staff see only tickets belonging to their assigned department (such as IT, Electrical, Facilities, or Plumbing), prioritized by SLA urgency.
+* **Claim & Update Status (`/staff/complaints/[id]`):** Claim unassigned tickets, advance state (`Submitted` -> `In Progress` -> `Resolved`), and add internal or public progress notes.
+* **Resolution Proof:** When resolving an issue, staff can upload completion photos as verification evidence.
+* **SLA Target Management:** Staff can override or extend target completion dates with a required reason for the audit record.
+* **Live Chat Support:** Tickets with active incoming messages display a glowing chat badge. Staff can open the chat drawer, review the automated conversation, and click "Take Over Live Chat" to speak directly with the reporter.
+
+### 3. Admin Command Center (`/admin/dashboard`)
+* **Master Ticket Table:** Global view of all campus complaints across every department. Supports multi-column filtering by status, priority, and department, plus quick ticket reassignment.
+* **User Management (`/admin/users`):** View all registered users, promote or demote roles (Student, Staff, Admin) with self-demotion safety checks, and assign staff members to departments.
+* **Category Management:** Create new issue categories under specific maintenance departments.
+* **Audit Logs (`/admin/audit-logs`):** An immutable event ledger recording every ticket status transition, staff assignment change, and user role update with actor details and timestamps.
+* **Super-User Chat Access:** Administrators can join any ticket's chat drawer with senior oversight access.
+
+### 4. Public Ticket Tracking (`/track`)
+* Accessible without logging in.
+* Anyone with a 6-character anonymous tracking code or standard ticket ID (`CMP-YYYY-XXXXX`) can look up current status, public progress notes, and resolution evidence.
+
+---
+
+## 🛠️ Tech Stack
+
+* **Frontend:** Next.js 16 (App Router), React 19 Server Actions, Tailwind CSS, Lucide React
+* **Backend & Database:** Supabase (PostgreSQL 15 with Row Level Security, Auth, Object Storage)
+* **Real-time Chat & Rate Limiting:** Upstash Redis for ephemeral chat messaging and submission rate limiting
+* **Validation:** Zod schemas for client and server input validation
+* **Data Tables:** TanStack Table for admin master tables
 
 ---
 
@@ -61,12 +86,17 @@ For detailed post-mortem insights, database RLS optimization notes, React 19 for
    ```
 
 3. **Configure Environment Variables:**
-   Copy `.env.example` to `.env.local` and fill in your Supabase and Upstash Redis credentials:
+   Copy `.env.example` to `.env.local` and add your Supabase, Upstash Redis, and API keys:
    ```bash
    cp .env.example .env.local
    ```
 
-4. **Start the Development Server:**
+4. **Seed Default Accounts (Optional):**
+   ```bash
+   node scripts/seed-users.js
+   ```
+
+5. **Start the Development Server:**
    ```bash
    pnpm dev
    ```
