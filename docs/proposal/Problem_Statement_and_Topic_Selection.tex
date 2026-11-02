@@ -1,0 +1,148 @@
+\documentclass[12pt, a4paper]{article}
+
+% Gold-Standard Academic Typography & Encoding Packages
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage[margin=1.1in]{geometry}
+\setlength{\headheight}{20pt}
+
+% Line & Paragraph Spacing Packages
+\usepackage{setspace}
+\onehalfspacing
+\usepackage[skip=0.8em, indent=0pt]{parskip}
+
+% Styling & Color Packages
+\usepackage{xcolor}
+\definecolor{navyblue}{RGB}{15, 42, 74}
+\definecolor{slateblue}{RGB}{30, 58, 138}
+\definecolor{darkgray}{RGB}{51, 65, 85}
+
+% Section Heading Customization
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\color{navyblue}}{\thesection}{1em}{}[\vspace{0.2em}\hrule height 0.6pt]
+\titleformat{\subsection}{\large\bfseries\color{slateblue}}{\thesubsection}{0.8em}{}
+\titlespacing*{\section}{0pt}{3.0ex plus 1ex minus .2ex}{2.0ex plus .2ex}
+\titlespacing*{\subsection}{0pt}{2.5ex plus 1ex minus .2ex}{1.2ex plus .2ex}
+
+% List Formatting Packages
+\usepackage{enumitem}
+\setlist[itemize]{itemsep=0.5em, topsep=0.5em, parsep=0.2em, leftmargin=1.5em}
+\setlist[enumerate]{itemsep=0.8em, topsep=0.8em, parsep=0.3em, leftmargin=1.5em}
+
+% Additional Core Packages
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+
+% Hyperref Setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=navyblue,
+    citecolor=navyblue,
+    urlcolor=navyblue,
+    pdftitle={Topic Selection and Problem Statement - CampusCare},
+    pdfauthor={CampusCare Development Team}
+}
+
+% Header and Footer Setup
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small \textbf{\color{darkgray}Software Engineering Project Submission}}
+\lhead{\small \textbf{\color{darkgray}CampusCare Proposal Summary}}
+\rfoot{\small \color{darkgray}Page \thepage}
+\lfoot{\small \color{darkgray}University Infrastructure \& Facility Management}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+% =========================================================
+% COVER PAGE
+% =========================================================
+\begin{titlepage}
+    \centering
+    
+    {\Large \textbf{University of Information Technology and Sciences (UITS)}}\\[0.3cm]
+    {\large Department of Computer Science and Engineering}\\[1.5cm]
+    
+    {\Large \textbf{COURSE:}} Software Project Design and Development (CSE 416)\\[1.2cm]
+    
+    \rule{\linewidth}{0.6mm}\\[0.5cm]
+    {\LARGE \textbf{\color{navyblue}TOPIC SELECTION \& PROBLEM STATEMENT}}\\[0.3cm]
+    {\large \textbf{Project Title: CampusCare}}\\[0.1cm]
+    {\small Centralized University Complaint Management System}\\[0.5cm]
+    \rule{\linewidth}{0.6mm}\\[1.8cm]
+    
+\begin{minipage}{0.48\textwidth}
+    \begin{flushleft} \large
+        \textbf{Submitted To:}\\[0.3cm]
+        \textbf{Dr. Mahfida Amjad Dipa}\\
+        Assistant Professor\\
+        Department of CSE, UITS
+    \end{flushleft}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\textwidth}
+    \begin{flushright} \large
+        \textbf{Submitted By (Group Members):}\\[0.3cm]
+        \textbf{Rudro Antony Mrong}\\
+        ID: 0432320005101059\\[0.25cm]
+        \textbf{Md. Masud Rahman}\\
+        ID: 0432320005101064\\[0.25cm]
+        \textbf{Shafayat Hossain Shafin}\\
+        ID: 0432320005101088
+    \end{flushright}
+\end{minipage}
+    
+    \vfill
+    {\large Submission Date: August 2026}
+\end{titlepage}
+
+\newpage
+
+% =========================================================
+% 1. TOPIC SELECTION & SYSTEM OVERVIEW
+% =========================================================
+\section{Topic Selection: CampusCare}
+
+\subsection{Project Title and Category}
+\begin{itemize}
+    \item \textbf{Project Title:} CampusCare
+    \item \textbf{Sub-Title:} Centralized University Facility Maintenance and Complaint Tracking Platform
+    \item \textbf{Domain Category:} Web Engineering, Enterprise Asset Management (EAM), Workflow Automation
+    \item \textbf{Target Institution:} University Infrastructure, Laboratories, Dormitories, and Administrative Facilities
+\end{itemize}
+
+\vspace{1.0em}
+
+\subsection{Executive Summary and System Concept}
+CampusCare is a centralized 3-tier web application designed to track, manage, and resolve university facility maintenance issues, infrastructure reporting, and operational work orders. In traditional academic institutions, complaint reporting relies on unorganized channels such as phone calls, emails, and physical front-desk logbooks. This fragmentation leads to delayed issue resolution, lost requests, lack of status tracking for reporters, and poor operational visibility for university facility managers.
+
+CampusCare introduces a single digital workflow governed by a multi-step state machine (\texttt{Submitted}, \texttt{Assigned}, \texttt{In Progress}, \texttt{Resolved}, \texttt{Closed}, \texttt{Reopened}). The platform provides role-based web interfaces for Students, Staff, and Administrators to ensure operational accountability, track Service Level Agreement (SLA) deadlines, and provide institutional reporting on campus infrastructure maintenance.
+
+\newpage
+
+% =========================================================
+% 2. PROBLEM STATEMENT
+% =========================================================
+\section{Problem Statement}
+
+Managing physical and technical infrastructure across campus lecture halls, dormitories, laboratories, and administrative offices involves thousands of active assets. Existing manual reporting workflows create several critical operational bottlenecks:
+
+\begin{enumerate}
+    \item \textbf{Unconsolidated Communication Channels:} Complaints submitted through verbal requests, emails, or phone calls lead to misplaced requests, zero central record-keeping, and zero institutional accountability.
+    
+    \item \textbf{Lack of Reporter Status Tracking:} Students cannot track complaint progress after submission, resulting in redundant follow-up inquiries and frustration regarding unaddressed safety or facility faults.
+    
+    \item \textbf{Unstructured Work Queues:} Maintenance staff lack prioritized digital queues, leading to uneven task distribution, unassigned emergency tasks, and missed service deadlines.
+    
+    \item \textbf{Limited Departmental Metrics and Oversight:} Department heads lack quantitative data regarding active workloads, overdue tickets, resolution times, and recurring infrastructure faults across campus facilities.
+    
+    \item \textbf{Absence of Audit Records:} Without immutable database audit logs, tracing ticket history, verifying state changes, and evaluating historical staff performance remains impossible.
+\end{enumerate}
+
+\end{document}
