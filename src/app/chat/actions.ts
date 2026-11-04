@@ -4,7 +4,6 @@ import {
   getChatState,
   appendChatMessage,
   setChatMode,
-  setEmergencyAlert,
   getActiveChatComplaintIds,
   ChatMessage,
 } from "@/lib/chatStore";
@@ -14,7 +13,7 @@ export async function fetchActiveChatsAction() {
   try {
     const activeIds = await getActiveChatComplaintIds();
     return { success: true, activeIds };
-  } catch (error) {
+  } catch {
     return { success: false, activeIds: [] };
   }
 }
@@ -47,9 +46,10 @@ export async function postStudentChatMessageAction(
 
     let state = await getChatState(complaintId);
 
-    // If chat mode is bot, invoke AI Dispatcher
+    // If chat mode is bot, invoke AI Dispatcher with full conversation history
     if (state && state.mode === "bot") {
-      const aiResponse = await generateGeminiDispatchReply(ticketContext, text);
+      const priorHistory = (state.messages || []).slice(0, -1);
+      const aiResponse = await generateGeminiDispatchReply(ticketContext, text, priorHistory);
 
       const botMsg: ChatMessage = {
         id: "msg-" + Date.now() + "-bot",
