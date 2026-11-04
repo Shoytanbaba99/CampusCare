@@ -72,6 +72,7 @@ Keep responses helpful, polite, and concise (2-4 sentences max).`;
             "Content-Type": "application/json",
           },
           body: JSON.stringify(requestBody),
+          signal: AbortSignal.timeout(4000),
         }
       );
 
