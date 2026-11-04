@@ -142,3 +142,31 @@ export async function takeoverLiveChatAction(
     return { success: false, error: "Failed to take over live chat" };
   }
 }
+
+export async function switchChatModeAction(
+  complaintId: string,
+  mode: "bot" | "staff",
+  actorName: string = "User"
+) {
+  try {
+    await setChatMode(complaintId, mode);
+
+    const systemMsg: ChatMessage = {
+      id: "msg-" + Date.now() + "-sys",
+      sender: "system",
+      senderName: "System",
+      text: mode === "staff"
+        ? `${actorName} requested Human Staff. AI Dispatcher is paused.`
+        : `${actorName} enabled AI Dispatcher Mode.`,
+      timestamp: new Date().toISOString(),
+    };
+
+    await appendChatMessage(complaintId, systemMsg);
+
+    const state = await getChatState(complaintId);
+    return { success: true, state };
+  } catch (error) {
+    console.error("Failed to switch chat mode:", error);
+    return { success: false, error: "Failed to switch chat mode" };
+  }
+}
