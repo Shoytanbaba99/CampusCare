@@ -9,6 +9,7 @@ import {
   postAdminChatMessageAction,
   switchChatModeAction,
 } from "@/app/chat/actions";
+import type { TicketContext } from "@/lib/geminiDispatcher";
 
 const emptySubscribe = () => () => {};
 
@@ -28,20 +29,7 @@ interface ChatState {
 
 interface FloatingLiveChatProps {
   complaintId: string;
-  ticketContext?: {
-    ticketNumber?: string;
-    title?: string;
-    departmentName?: string;
-    categoryName?: string;
-    location?: string;
-    priority?: string;
-    status?: string;
-    slaDueAt?: string;
-    reporterName?: string;
-    description?: string;
-    progressNotesSummary?: string;
-    isAnonymous?: boolean;
-  };
+  ticketContext?: TicketContext;
   userRole?: "student" | "staff" | "admin";
   userName?: string;
 }

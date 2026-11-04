@@ -1,16 +1,16 @@
 export interface TicketContext {
-  ticketNumber: string;
-  reporterName: string;
-  title: string;
-  description: string;
-  departmentName: string;
-  categoryName: string;
-  location: string;
-  priority: string;
-  status: string;
-  slaDueAt: string;
-  progressNotesSummary: string;
-  isAnonymous: boolean;
+  ticketNumber?: string;
+  reporterName?: string;
+  title?: string;
+  description?: string;
+  departmentName?: string;
+  categoryName?: string;
+  location?: string;
+  priority?: string;
+  status?: string;
+  slaDueAt?: string;
+  progressNotesSummary?: string;
+  isAnonymous?: boolean;
 }
 
 export interface ChatHistoryItem {
