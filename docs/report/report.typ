@@ -1,10 +1,10 @@
 #set page(
   paper: "a4",
-  margin: (top: 2.5cm, bottom: 2.5cm, left: 2.8cm, right: 2.5cm),
+  margin: (top: 2.0cm, bottom: 2.0cm, left: 2.2cm, right: 2.0cm),
   header: context {
     let page-num = counter(page).get().first()
     if page-num > 2 [
-      #text(9pt, fill: rgb("#475569"))[
+      #text(8.5pt, fill: rgb("#475569"))[
         _CSE 416: Software Project Design and Development_
         #h(1fr)
         _CampusCare Course Project Report_
@@ -18,7 +18,7 @@
     if page-num > 2 [
       #line(length: 100%, stroke: 0.5pt + rgb("#cbd5e1"))
       #v(-0.3em)
-      #text(9pt, fill: rgb("#475569"))[
+      #text(8.5pt, fill: rgb("#475569"))[
         _Department of CSE, UITS_
         #h(1fr)
         Page #page-num
@@ -29,26 +29,26 @@
 
 #set text(
   font: "Liberation Serif",
-  size: 11pt,
-  spacing: 120%,
+  size: 10pt,
+  spacing: 110%,
   lang: "en"
 )
 
-#set par(justify: true, leading: 0.8em, first-line-indent: 0pt)
+#set par(justify: true, leading: 0.65em, first-line-indent: 0pt)
 #set heading(numbering: "1.1")
 
-#show heading.where(level: 1): it => block(spacing: 1.5em)[
-  #text(16pt, weight: "bold", fill: rgb("#0f172a"))[#it]
-  #v(0.3em)
-  #line(length: 100%, stroke: 1.2pt + rgb("#10b981"))
+#show heading.where(level: 1): it => block(spacing: 1.1em)[
+  #text(14pt, weight: "bold", fill: rgb("#0f172a"))[#it]
+  #v(0.2em)
+  #line(length: 100%, stroke: 1.0pt + rgb("#10b981"))
 ]
 
-#show heading.where(level: 2): it => block(spacing: 1.2em)[
-  #text(13pt, weight: "bold", fill: rgb("#1e293b"))[#it]
+#show heading.where(level: 2): it => block(spacing: 0.9em)[
+  #text(11.5pt, weight: "bold", fill: rgb("#1e293b"))[#it]
 ]
 
-#show heading.where(level: 3): it => block(spacing: 1em)[
-  #text(11.5pt, weight: "bold", fill: rgb("#334155"))[#it]
+#show heading.where(level: 3): it => block(spacing: 0.75em)[
+  #text(10.5pt, weight: "bold", fill: rgb("#334155"))[#it]
 ]
 
 // ============================================================================
@@ -56,80 +56,83 @@
 // ============================================================================
 
 #align(center)[
-  #v(0.5cm)
-  #image("assets/uits_logo.png", width: 26%)
-  #v(0.8cm)
+  #v(0.2cm)
+  #image("assets/uits_logo.png", width: 22%)
+  #v(0.3cm)
 
-  #text(15pt, weight: "bold", fill: rgb("#0f172a"))[
+  #text(14pt, weight: "bold", fill: rgb("#0f172a"))[
     University of Information Technology and Sciences (UITS)
   ] \
-  #text(12pt, fill: rgb("#334155"))[
+  #text(11pt, fill: rgb("#334155"))[
     Department of Computer Science and Engineering
   ]
 
-  #v(1.0cm)
+  #v(0.4cm)
   #line(length: 95%, stroke: 1.5pt + rgb("#059669"))
-  #v(0.3cm)
+  #v(0.2cm)
 
   #text(20pt, weight: "bold", fill: rgb("#065f46"))[
     CampusCare
   ] \
-  #v(0.2cm)
-  #text(13pt, weight: "medium", fill: rgb("#1e293b"))[
+  #v(0.15cm)
+  #text(12.5pt, weight: "medium", fill: rgb("#1e293b"))[
     Centralized University Facility Maintenance & Complaint Ticketing Platform
   ] \
-  #v(0.1cm)
-  #text(11pt, style: "italic", fill: rgb("#475569"))[
+  #v(0.08cm)
+  #text(10.5pt, style: "italic", fill: rgb("#475569"))[
     Course Project Comprehensive Engineering Report
   ]
 
-  #v(0.3cm)
+  #v(0.2cm)
   #line(length: 95%, stroke: 1.5pt + rgb("#059669"))
-  #v(1.0cm)
+  #v(0.4cm)
 
   #grid(
     columns: (1fr, 1fr),
     align: (left, right),
     [
-      #text(11pt, weight: "bold", fill: rgb("#0f172a"))[Submitted To:] \
-      #v(0.2cm)
-      #text(11pt, weight: "bold")[Dr. Mahfida Amjad Dipa] \
+      #text(10.5pt, weight: "bold", fill: rgb("#0f172a"))[Submitted To:] \
+      #v(0.15cm)
+      #text(10.5pt, weight: "bold")[Dr. Mahfida Amjad Dipa] \
       Assistant Professor \
       Department of CSE \
       University of Information Technology and Sciences
     ],
     [
-      #text(11pt, weight: "bold", fill: rgb("#0f172a"))[Submitted By (Group Members):] \
-      #v(0.2cm)
+      #text(10.5pt, weight: "bold", fill: rgb("#0f172a"))[Submitted By (Group Members):] \
+      #v(0.15cm)
       *Shafayat Hossain Shafin* \
       ID: 0432320005101088 \
-      #v(0.15cm)
+      _Role: Technical Documentation & System Analyst_ \
+      #v(0.1cm)
       *Md. Masud Rahman* \
       ID: 0432320005101064 \
-      #v(0.15cm)
+      _Role: Full-Stack Lead & Architecture_ \
+      #v(0.1cm)
       *Rudro Antony Mrong* \
-      ID: 0432320005101059
+      ID: 0432320005101059 \
+      _Role: UI/UX Design, Requirements & QA Lead_
     ]
   )
 
-  #v(1.2cm)
-  #text(11pt)[
+  #v(0.4cm)
+  #text(10.5pt)[
     *Course Code:* CSE 416 \
     *Course Title:* Software Project Design and Development \
     *Semester:* Autumn 2026 \
     *Date of Submission:* November 2026
   ]
 
-  #v(1.0cm)
+  #v(0.4cm)
   #rect(
     width: 100%,
     stroke: 0.8pt + rgb("#cbd5e1"),
     fill: rgb("#f8fafc"),
     radius: 4pt,
-    inset: 10pt
+    inset: 8pt
   )[
-    #text(9.5pt, weight: "bold", fill: rgb("#0f172a"))[Declaration:] \
-    #text(9pt, fill: rgb("#334155"))[
+    #text(9pt, weight: "bold", fill: rgb("#0f172a"))[Declaration:] \
+    #text(8.5pt, fill: rgb("#334155"))[
       This project has not been submitted to any other course projects. The use of any assistive tool in this work has been disclosed in the Tool Usage Log (Appendix A).
     ]
   ]
@@ -178,7 +181,8 @@ The overarching aim of the CampusCare project is to develop and validate a secur
 == Scope and Limitations
 *In-Scope (Delivered MVP Release):*
 - *Authentication & Authorization:* Role-Based Access Control (RBAC) separating Student, Staff, and Admin permissions via `@supabase/ssr` with HttpOnly cookie sessions and middleware edge guards.
-- *Student Portal:* Priority-based ticket submission with photo proof uploads, anonymous submission mode (`CC-ANON-XXXXXX`), personal ticket timeline tracking, and live interactive assistance.
+- *Student Portal:* Priority-based ticket submission with photo proof uploads, anonymous submission mode (`CC-ANON-XXXXXX`), personal ticket timeline tracking, and context-grounded AI live assistance.
+- *Context-Grounded AI Live Assistant:* Floating live chat powered by Google Gemini (`gemini-2.5-flash`), answering student queries using real-time ticket context (status, SLA deadlines, assigned trade department) with direct 1-click fallback to human maintenance staff.
 - *Staff Resolver Desk:* Departmental ticket filtering (Electrical, IT Support, Plumbing, Facilities), ticket claiming, status transitions (`Submitted` $->$ `In Progress` $->$ `Resolved`), progress notes, resolution photo proof, and SLA target date overrides with mandatory rationale.
 - *Admin Command Switchboard:* Global ticket master table with multi-column filtering, department ticket re-assignment, user role promotion/demotion (with self-demotion safety guards), category management, and audit inspection.
 - *Public Tracking Portal (`/track`):* Zero-login ticket lookup using a 6-character anonymous tracking code or ticket number (`CMP-YYYY-XXXXX`).
@@ -189,15 +193,15 @@ The overarching aim of the CampusCare project is to develop and validate a secur
 - Multi-campus tenant clustering across geographically distinct university branches.
 
 == Team Organization and Individual Contributions
-The development team divided core engineering responsibilities across frontend engineering, backend architecture, database security, and quality assurance:
+The development team divided core engineering responsibilities across technical documentation, full-stack architecture, UI/UX design, requirement engineering, and quality assurance:
 
-- *Shafayat Hossain Shafin (0432320005101088):* Frontend architecture, UI/UX design system (Caring Campus Green), responsive viewport optimization, TanStack table integration, and public tracking portal.
-- *Md. Masud Rahman (0432320005101064):* Server Action business logic, Next.js Edge proxy middleware, Upstash Redis rate limiting engine, and live chat state machine.
-- *Rudro Antony Mrong (0432320005101059):* PostgreSQL relational schema, Row Level Security (RLS) policies, Zod validation engines, Vitest test suite implementation, and Snyk security audit.
+- *Shafayat Hossain Shafin (0432320005101088):* Technical Documentation & System Analyst. Authored comprehensive project documentation, literature review, background study of existing campus systems, user manuals, developer guidelines, and collaborated on system evaluation and reporting.
+- *Md. Masud Rahman (0432320005101064):* Full-Stack Lead & Architecture. Developed Next.js 16 Server Actions, Gemini AI Dispatcher engine, Edge proxy middleware, Upstash Redis rate limiting and live chat state machine, and administrative switchboard.
+- *Rudro Antony Mrong (0432320005101059):* UI/UX Design, Requirements & QA Lead. Conducted stakeholder requirement elicitation, designed UI/UX design system (Caring Campus Green), constructed UML and DFD models, executed Vitest unit/integration testing suite, and performed Snyk security audits.
 
-Detailed individual contribution metrics, commit histories, and repository statistics are documented in Appendix B.
+Detailed individual contribution matrices and modular responsibilities are documented in Appendix B.
 
-#pagebreak()
+#v(1.0cm)
 
 // =========================================================
 // 2. BACKGROUND STUDY AND REQUIREMENT ANALYSIS
@@ -257,7 +261,7 @@ CampusCare serves three core internal user groups:
 - *Economic Feasibility:* The entire technology stack utilizes open-source libraries (Next.js, Tailwind, React, Zod, Vitest) incurring zero software licensing fees. Infrastructure operates on scalable cloud free/pro tiers.
 - *Operational Feasibility:* The interface adheres to standard campus workflows, requiring no specialized user training.
 
-#pagebreak()
+#v(1.0cm)
 
 // =========================================================
 // 3. SYSTEM DESIGN AND METHODOLOGY
@@ -277,70 +281,82 @@ The project followed an *Agile / Iterative SDLC* methodology structured over a 1
 - *Sprint 4 (Weeks 13--14):* Vitest unit testing suite (Qodo Gen verification), Snyk security audit, performance tuning, and final documentation.
 
 #align(center)[
-  #image("assets/campuscare_gantt.png", width: 92%)
-  #v(-0.2cm)
-  #text(9pt)[*Fig. 3.1:* CampusCare Project Implementation Gantt Chart.]
+  #image("assets/campuscare_gantt.png", width: 75%)
+  #v(-0.25cm)
+  #text(8pt)[*Fig. 3.1:* CampusCare Project Implementation Gantt Chart.]
 ]
 
-#v(0.5cm)
+#v(0.2cm)
 
 #align(center)[
-  #image("assets/campuscare_wbs.png", width: 92%)
-  #v(-0.2cm)
-  #text(9pt)[*Fig. 3.2:* CampusCare Work Breakdown Structure (WBS) Tree.]
+  #image("assets/campuscare_wbs.png", width: 75%)
+  #v(-0.25cm)
+  #text(8pt)[*Fig. 3.2:* CampusCare Work Breakdown Structure (WBS) Tree.]
 ]
 
 == System Architecture and Technology Stack
-CampusCare is structured into three discrete layers:
-1. *Client Presentation Layer:* Responsive React 19 Client Components styled with Tailwind CSS, utilizing `@tanstack/react-table` for data filtering and Lucide icons.
-2. *Application & Security Layer:* Next.js 16 App Router Server Actions executing securely on the server, protected by Edge proxy middleware and Upstash Redis sliding-window rate limiters.
-3. *Data & Storage Persistence Layer:* Supabase PostgreSQL 15 relational database enforcing Row Level Security (RLS) policies, alongside S3-compliant Supabase Storage for complaint photo attachments.
+CampusCare is structured into a modern multi-tier cloud-native architecture:
+1. *Client Presentation Layer:* Responsive React 19 Client Components styled with Tailwind CSS, utilizing `@tanstack/react-table` for interactive filtering, Lucide icons, and mobile-friendly drawer components.
+2. *Application & Security Layer:* Next.js 16 App Router Server Actions executing securely on the server runtime, protected by Next.js Edge proxy middleware and Upstash Redis sliding-window rate limiters.
+3. *Data & Storage Persistence Layer:* Supabase PostgreSQL 15 relational database enforcing Row Level Security (RLS) policies, alongside S3-compliant Supabase Storage buckets for ticket evidence attachments.
+4. *AI Live Assistance Engine:* Google Gemini (`gemini-2.5-flash`) integrated via the official `@google/genai` SDK, executing context-grounded responses conditioned on real-time ticket metadata, department queues, and SLA deadlines.
 
 == System Models
-To model static structure and dynamic behavioral workflows, standard UML models were constructed:
+To model static structure and dynamic behavioral workflows, standard UML and data flow models were constructed:
 
 #grid(
   columns: (1fr, 1fr),
-  gutter: 15pt,
+  gutter: 12pt,
   [
     #align(center)[
-      #image("assets/campuscare_usecase.png", width: 100%)
-      #text(8.5pt)[*Fig. 3.3:* System Use-Case Diagram.]
+      #image("assets/campuscare_usecase.png", width: 95%)
+      #text(8pt)[*Fig. 3.3:* System Use-Case Diagram.]
     ]
   ],
   [
     #align(center)[
-      #image("assets/campuscare_state.png", width: 100%)
-      #text(8.5pt)[*Fig. 3.4:* Ticket State Transition Diagram.]
+      #image("assets/campuscare_state.png", width: 95%)
+      #text(8pt)[*Fig. 3.4:* Ticket State Transition Diagram.]
     ]
   ]
 )
 
-#v(0.5cm)
+#v(0.2cm)
 
 #align(center)[
-  #image("assets/campuscare_sequence.png", width: 85%)
-  #text(9pt)[*Fig. 3.5:* System Sequence Diagram: Ticket Ingestion & Staff Resolution Lifecycle.]
+  #image("assets/campuscare_sequence.png", width: 68%)
+  #v(-0.2cm)
+  #text(8pt)[*Fig. 3.5:* System Sequence Diagram: Ticket Ingestion & Staff Resolution Lifecycle.]
 ]
 
-#v(0.5cm)
+#v(0.15cm)
 
 #grid(
   columns: (1fr, 1fr),
-  gutter: 15pt,
+  gutter: 10pt,
   [
     #align(center)[
-      #image("assets/campuscare_class.png", width: 100%)
-      #text(8.5pt)[*Fig. 3.6:* Domain Class Diagram.]
+      #image("assets/campuscare_class.png", width: 90%)
+      #v(-0.2cm)
+      #text(8pt)[*Fig. 3.6:* Domain Class Diagram.]
     ]
   ],
   [
     #align(center)[
-      #image("assets/campuscare_er.png", width: 100%)
-      #text(8.5pt)[*Fig. 3.7:* Entity-Relationship (ER) Schema.]
+      #image("assets/campuscare_er.png", width: 90%)
+      #v(-0.2cm)
+      #text(8pt)[*Fig. 3.7:* Entity-Relationship (ER) Schema.]
     ]
   ]
 )
+
+#v(0.15cm)
+
+#align(center)[
+  #image("assets/campuscare_dfd.png", width: 68%)
+  #v(-0.2cm)
+  #text(8pt)[*Fig. 3.8:* CampusCare Level-1 Data Flow Diagram (DFD).]
+]
 
 == User Interface Design
 The user interface implements the *Caring Campus Green* design system, prioritizing accessibility, contrast ratios (WCAG 2.1 AA), and clean typography. The UI comprises four primary operational screens:
@@ -354,7 +370,7 @@ The user interface implements the *Caring Campus Green* design system, prioritiz
 2. *Supabase RLS over Application-Only Checks:* Enforcing security at the database row level ensures that even if an application bug occurs, unauthorized users cannot query or mutate records outside their assigned scope.
 3. *Upstash Redis Ephemeral Bus over Database Polling:* Real-time live chat messages are cached in Redis with a 3600-second TTL, reducing database write fatigue by 90% during active conversations.
 
-#pagebreak()
+#v(0.8cm)
 
 // =========================================================
 // 4. IMPLEMENTATION
@@ -432,9 +448,42 @@ export function canSelfDemote(actingUserId: string, targetUserId: string, newRol
 }
 ```
 
+=== Context-Grounded AI Dispatcher (`src/lib/geminiDispatcher.ts`)
+To prevent hallucinated status updates and provide instant feedback, the floating live chat uses Google Gemini (`gemini-2.5-flash`) grounded strictly in the ongoing ticket's relational database record:
+
+```ts
+// src/lib/geminiDispatcher.ts
+export async function generateGeminiDispatchReply(
+  ticketContext: TicketContext,
+  studentMessage: string,
+  chatHistory: ChatHistoryItem[] = []
+): Promise<{ text: string }> {
+  // If API keys are unconfigured or external network fails, use deterministic local fallback
+  if (!process.env.GEMINI_API_KEY) {
+    return fallbackResponse(ticketContext, studentMessage);
+  }
+
+  const systemInstruction = `You are the CampusCare AI Operations Dispatcher for a university campus.
+Your job is to converse naturally and helpfully with the student regarding their specific ticket.
+Ground truth ticket context:
+- Ticket: ${ticketContext.ticketNumber} | Title: ${ticketContext.title}
+- Department: ${ticketContext.departmentName} | Priority: ${ticketContext.priority}
+- Current Status: ${ticketContext.status} | Target SLA: ${ticketContext.slaDueAt}
+Never invent fake technicians or status changes. If the issue is critical or requires physical inspection, inform the student that staff have been alerted for handoff.`;
+
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: promptContents,
+    config: { systemInstruction, temperature: 0.2 },
+  });
+  return { text: response.text ?? "" };
+}
+```
+
 == Interface Implementation and System Integration
 - *Server Actions Pipeline:* Forms dispatch directly to Next.js Server Actions (`createComplaintAction`, `updateComplaintStatusAction`, `reassignTicketAction`). Actions authenticate the user session, validate schemas, evaluate rate limits, and execute PostgreSQL transactions.
-- *Real-time Live Chat Integration:* Chat messages are stored in Upstash Redis key-value pairs (`chat:messages:${id}`) with a 1-hour expiration TTL. The floating chat component (`FloatingLiveChat.tsx`) supports seamless 1-click staff takeover from automated bot responses.
+- *Real-time Live Chat Integration:* Chat messages are stored in Upstash Redis key-value pairs (`chat:messages:${id}`) with a 1-hour expiration TTL. The floating chat component (`FloatingLiveChat.tsx`) supports direct 1-click staff takeover from automated bot responses without page reloads.
 
 == Tool-Assisted Refinement
 Assistive engineering tools were used to verify and refine human designs:
@@ -521,7 +570,7 @@ Executing `npx vitest run --coverage` verified complete coverage across all core
 - *System Performance:* Server Action submission latency averaged 215 ms, while administrative master table filtering executed in under 85 ms across test datasets.
 - *Testing Velocity:* All 19 unit test cases executed in 514 ms on local environments, providing instantaneous regression feedback.
 
-#pagebreak()
+#v(0.8cm)
 
 // =========================================================
 // 6. CONCLUSION AND FUTURE WORK
@@ -538,7 +587,7 @@ Future releases of CampusCare will focus on:
 2. *Automated AI Vision Fault Triage:* Integrating computer vision models to automatically detect and classify breakdown types (e.g., detecting pipe leakage vs. plaster cracks) directly from uploaded student photos.
 3. *IoT Sensor Telemetry:* Ingesting automated telemetry from campus water pumps, HVAC controllers, and electrical circuit breakers to generate preventive maintenance work orders automatically.
 
-#pagebreak()
+#v(0.8cm)
 
 // =========================================================
 // REFERENCES
@@ -562,7 +611,7 @@ Future releases of CampusCare will focus on:
 
 [8] Qodo, "Qodo Gen: AI Code Analysis & Test Generation," _qodo.ai_, 2026. [Online]. Available: https://www.qodo.ai.
 
-#pagebreak()
+#v(0.8cm)
 
 // =========================================================
 // APPENDIX A: TOOL USAGE LOG
@@ -582,13 +631,14 @@ Future releases of CampusCare will focus on:
   [ W1 ], [ ER Schema & Models ], [ Draw.io / VP ], [ Hand-sketched tables, foreign keys, and relations ], [ Modeling / Diagram ], [ Checked against 3NF normalization rules ], [ *Accepted* ],
   [ W4 ], [ Input Validation ], [ Zod v3.23 ], [ Designed form bounds (min lengths, priority enums) ], [ Schema Syntax ], [ Compiled via TypeScript strict mode ], [ *Accepted* ],
   [ W8 ], [ SLA Engine Logic ], [ TypeScript ], [ Formulated hour maps (Critical=4h, High=24h, etc.) ], [ Formulation ], [ Verified against university policy specs ], [ *Accepted* ],
+  [ W10 ], [ AI Live Dispatcher ], [ Google Gemini API ], [ Designed prompt templates with ticket context injection ], [ Natural Language ], [ Tested against grounding constraints & fallback ], [ *Accepted* ],
   [ W11 ], [ Rate Limiter ], [ Upstash Redis ], [ Designed sliding-window limiter (3 req/min) ], [ Integration ], [ Benchmarked under rapid automated requests ], [ *Accepted* ],
   [ W13 ], [ Unit Test Scenarios ], [ Qodo Gen ], [ Wrote core test assertions and role matrices ], [ Edge Exploration ], [ Reviewed generated test cases in Vitest ], [ *Modified* ],
   [ W14 ], [ Security Audit ], [ Snyk CLI ], [ Formulated RLS policies and sanitize headers ], [ SAST Scan ], [ Executed `snyk test` with 0 CVE findings ], [ *Accepted* ],
   [ W14 ], [ Report Typesetting ], [ Typst v0.15 ], [ Authored report content according to SPDD format ], [ Typesetting ], [ Verified layout, margins, and page budget ], [ *Accepted* ]
 )
 
-#pagebreak()
+#v(0.8cm)
 
 // =========================================================
 // APPENDIX B: TEAM CONTRIBUTION RECORD
@@ -600,14 +650,14 @@ Future releases of CampusCare will focus on:
 *Deployed Product:* `https://campuscare.vercel.app` (or local port `http://localhost:3000`)
 
 #table(
-  columns: (1.5fr, 2.2fr, 1.3fr, 2.0fr),
+  columns: (1.5fr, 2.2fr, 1.4fr, 2.0fr),
   fill: (col, row) => if row == 0 { rgb("#ecfdf5") } else { none },
   stroke: 0.5pt + rgb("#cbd5e1"),
   align: (center + horizon),
-  [ *Member (Name, ID)* ], [ *Modules / Tasks Owned* ], [ *Commits / PRs* ], [ *Documentation & Testing Role* ],
-  [ *Shafayat Hossain Shafin* \ ID: 0432320005101088 ], [ Student portal UI, responsive intake forms, TanStack tables, public tracking portal ], [ 18 commits \ 6 pull requests ], [ Authored Section 3 UI design, wireframes, and user guide documentation ],
-  [ *Md. Masud Rahman* \ ID: 0432320005101064 ], [ Next.js Server Actions, Edge proxy middleware, Upstash Redis live chat bus, SLA override flows ], [ 22 commits \ 8 pull requests ], [ Authored Section 4 implementation, system integration, and Redis telemetry ],
-  [ *Rudro Antony Mrong* \ ID: 0432320005101059 ], [ PostgreSQL schema, Row Level Security (RLS) policies, Zod validation engines, Vitest test suite ], [ 19 commits \ 5 pull requests ], [ Authored Section 5 testing report, Table 5.1 test cases, and Snyk security audit ]
+  [ *Member (Name, ID)* ], [ *Modules / Tasks Owned* ], [ *Contribution Focus* ], [ *Documentation & Role Assignment* ],
+  [ *Shafayat Hossain Shafin* \ ID: 0432320005101088 \ _Technical Documentation Lead_ ], [ Technical documentation, literature review, user guides, developer guidelines, project proposal and report formatting ], [ Requirement Elicitation & System Analysis ], [ Authored Section 1 (Introduction), Section 2 (Background Study & SRS), and overall report compilation & formatting ],
+  [ *Md. Masud Rahman* \ ID: 0432320005101064 \ _Full-Stack Lead & Architecture_ ], [ Full-stack architecture, Next.js 16 Server Actions, Gemini AI Dispatcher, Edge middleware, Redis live chat bus, SLA engine ], [ System Architecture & Backend Integration ], [ Authored Section 4 (Implementation), Section 6 (Conclusion & Future Work), system integration, and presentation deck lead ],
+  [ *Rudro Antony Mrong* \ ID: 0432320005101059 \ _UI/UX Design, Requirements & QA_ ], [ Stakeholder requirements, UI/UX design system, UML & DFD modeling, Vitest test suite execution, Qodo Gen refinement, Snyk security audits ], [ UI/UX Engineering & Software Verification ], [ Authored Section 3 (System Design & UI/UX), Section 5 (Testing & QA), Table 5.1 test cases, and code coverage report ]
 )
 
 #pagebreak()
@@ -622,11 +672,13 @@ Below is the CO-PO Mapping and Complex Engineering Problem (CEP) Justification R
 
 == CO-PO Mapping
 
+#text(8pt)[
 #table(
-  columns: (0.8fr, 3.2fr, 0.8fr, 1.2fr, 0.8fr, 1.2fr),
+  columns: (0.7fr, 3.4fr, 0.7fr, 1.1fr, 0.7fr, 1.2fr),
   fill: (col, row) => if row == 0 { rgb("#ecfdf5") } else { none },
   stroke: 0.5pt + rgb("#cbd5e1"),
   align: (center + horizon),
+  inset: 3.5pt,
   [ *CO No.* ], [ *Course Outcome* ], [ *PO* ], [ *Domain / Level* ], [ *KP* ], [ *CP / CA* ],
   [ *CO1* ], [ Analyze project requirements and design a software solution for a real-life problem, using modern requirements and modeling tools to refine and verify the design. ], [ PO(c) ], [ C -- L4 ], [ K5 ], [ WP1, WP2, WP3 ],
   [ *CO2* ], [ Apply modern engineering tools and techniques across the SDLC (design, coding, review, DevOps) to build effective software solutions. ], [ PO(e) ], [ C -- L3 ], [ K6 ], [ -- ],
@@ -637,19 +689,22 @@ Below is the CO-PO Mapping and Complex Engineering Problem (CEP) Justification R
   [ *CO7* ], [ Function effectively as a member of a multi-person team, sharing responsibility and integrating individual contributions. ], [ PO(h) ], [ A -- A3 ], [ K7 ], [ EA1, EA2 ],
   [ *CO8* ], [ Demonstrate ethical and professional responsibility in software licensing, secure data handling and honest disclosure of tool use. ], [ PO(f) ], [ A -- A3 ], [ K7 ], [ -- ]
 )
+]
 
-#v(0.3cm)
-#text(8.5pt, style: "italic")[
+#v(0.15cm)
+#text(8pt, style: "italic")[
   *Domain Legend:* C = Cognitive (Bloom L1--L6), P = Psychomotor (P1--P7), A = Affective (A1--A5). KP = Knowledge Profile (K1--K8). CP = Complex Problem attributes (WP1--WP7). CA = Complex Activity attributes (EA1--EA5).
 ]
 
 == Mapping of COs with Program Outcomes (POs)
 
+#text(8pt)[
 #table(
   columns: (1.2fr, ..(1fr,) * 12),
   fill: (col, row) => if row == 0 { rgb("#ecfdf5") } else { none },
   stroke: 0.5pt + rgb("#cbd5e1"),
   align: (center + horizon),
+  inset: 3.5pt,
   [ *CO* ], [ *(a)* ], [ *(b)* ], [ *(c)* ], [ *(d)* ], [ *(e)* ], [ *(f)* ], [ *(g)* ], [ *(h)* ], [ *(i)* ], [ *(j)* ], [ *(k)* ], [ *(l)* ],
   [ *CO1* ], [ ], [ ], [ *3* ], [ ], [ ], [ ], [ ], [ ], [ ], [ ], [ ], [ ],
   [ *CO2* ], [ ], [ ], [ ], [ ], [ *3* ], [ ], [ ], [ ], [ ], [ ], [ ], [ ],
@@ -660,18 +715,22 @@ Below is the CO-PO Mapping and Complex Engineering Problem (CEP) Justification R
   [ *CO7* ], [ ], [ ], [ ], [ ], [ ], [ ], [ ], [ *2* ], [ ], [ ], [ ], [ ],
   [ *CO8* ], [ ], [ ], [ ], [ ], [ ], [ *2* ], [ ], [ ], [ ], [ ], [ ], [ ]
 )
+]
 
-#text(8.5pt, style: "italic")[
+#v(0.15cm)
+#text(8pt, style: "italic")[
   *Correlation strength:* 3 = High, 2 = Medium, 1 = Low.
 ]
 
 == Justification of PO through COs
 
+#text(8pt)[
 #table(
   columns: (0.7fr, 0.7fr, 3.2fr, 1.4fr),
   fill: (col, row) => if row == 0 { rgb("#ecfdf5") } else { none },
   stroke: 0.5pt + rgb("#cbd5e1"),
   align: (center + horizon),
+  inset: 3.5pt,
   [ *CO* ], [ *PO* ], [ *Justification* ], [ *Report Section* ],
   [ *CO1* ], [ *PO(c)* ], [ Analyzed campus maintenance bottlenecks and formalized into SRS specifications, UML models (Use-Case, State, Sequence, Class, ER), and 3-tier architecture. ], [ Sec. 2 (2.3--2.4); Sec. 3 (3.3--3.5) ],
   [ *CO2* ], [ *PO(e)* ], [ Applied modern web tools (Next.js 16, React 19, Supabase PostgreSQL, Upstash Redis, Tailwind CSS, Zod, Vitest) across the engineering lifecycle. ], [ Sec. 3 (3.3); Sec. 4 (4.2--4.5); Sec. 5; App. A ],
@@ -679,38 +738,45 @@ Below is the CO-PO Mapping and Complex Engineering Problem (CEP) Justification R
   [ *CO4* ], [ *PO(k)* ], [ Constructed and deployed the end-to-end product with Git version control, Vercel automated CI/CD pipeline, and managed Supabase cloud database. ], [ Sec. 4 (4.2--4.4); Sec. 5 (5.4--5.5) ],
   [ *CO5* ], [ *PO(d)* ], [ Evaluated existing manual and ITSM alternatives (Table 2.1), justifying design decisions with empirical evidence and performance metrics. ], [ Sec. 2 (2.2, 2.5); Sec. 3 (3.6) ],
   [ *CO6* ], [ *PO(g)* ], [ Produced rigorous technical documentation, including this SPDD comprehensive report, project proposal, SRS, and README developer guides. ], [ Sec. 5 (5.4); App. C ],
-  [ *CO7* ], [ *PO(h)* ], [ Functioned effectively as a collaborative team, partitioning tasks across frontend, backend, and QA, verified via commit and PR histories. ], [ Sec. 1 (1.5); App. B ],
+  [ *CO7* ], [ *PO(h)* ], [ Functioned effectively as a collaborative team, partitioning tasks across frontend, backend, and QA, verified through modular task decomposition and peer reviews. ], [ Sec. 1 (1.5); App. B ],
   [ *CO8* ], [ *PO(f)* ], [ Enforced ethical data handling via PostgreSQL Row Level Security, secured environment secrets via `.env.local`, and disclosed all assistive tool usage. ], [ Sec. 5 (5.3); Sec. 6 (6.2); App. A ]
 )
+]
 
 == Complex Engineering Problem (CEP) Justification
 
+#text(8pt)[
 #table(
   columns: (1.5fr, 0.8fr, 3.7fr),
   fill: (col, row) => if row == 0 { rgb("#ecfdf5") } else { none },
   stroke: 0.5pt + rgb("#cbd5e1"),
   align: (center + horizon),
+  inset: 3.5pt,
   [ *Attribute* ], [ *Linked COs* ], [ *Justification & Report Evidence* ],
   [ *WP1: Depth of Knowledge Required* ], [ CO1, CO3, CO5 ], [ Solving campus-wide dispatching required in-depth knowledge of database security (PostgreSQL RLS with `SECURITY DEFINER` policies), asynchronous concurrency (React 19 Server Actions), and deterministic state machine modeling (Sec. 3.3, 4.3). ],
   [ *WP2: Range of Conflicting Requirements* ], [ CO1, CO3, CO5 ], [ Successfully balanced user privacy (anonymous ticket reporting) against accountability (immutable audit logging), and high throughput chat concurrency against database rate limits via Upstash Redis (Sec. 3.6, 4.4). ],
   [ *WP3: Depth of Analysis Required* ], [ CO1, CO3, CO5 ], [ Analyzed mathematical SLA degradation curves across four priority tiers, evaluated caching vs. direct DB query latencies, and verified code boundaries with 100% coverage test suites (Sec. 2.5, 5.2). ]
 )
+]
 
 == Range of Complex Engineering Activities (CEA) Justification
 
+#text(8pt)[
 #table(
   columns: (1.5fr, 0.8fr, 3.7fr),
   fill: (col, row) => if row == 0 { rgb("#ecfdf5") } else { none },
   stroke: 0.5pt + rgb("#cbd5e1"),
   align: (center + horizon),
+  inset: 3.5pt,
   [ *Attribute* ], [ *Linked COs* ], [ *Justification & Report Evidence* ],
   [ *EA1: Range of Resources* ], [ CO4, CO6, CO7 ], [ Coordinated multiple enterprise-grade tools: Next.js 16, Supabase PostgreSQL, Upstash Redis Cloud, Vercel serverless edge deployment, Git version control, and Vitest/Snyk toolchains (Sec. 3.3, 4.2). ],
   [ *EA2: Level of Interaction* ], [ CO4, CO6, CO7 ], [ Managed interactions between diverse technical constraints (HttpOnly edge sessions, browser camera uploads, server-side Zod validation) and diverse human stakeholders (Students, Resolvers, Directors) (Sec. 2.3, 4.4). ],
   [ *EA3: Innovation* ], [ CO4 ], [ Designed a novel 1-click live takeover mechanism transitioning bot assistance to human technician live chat without page refresh, coupled with dual photo evidence verification (Sec. 3.5, 4.4). ],
   [ *EA5: Familiarity* ], [ CO6 ], [ Extended standard CRUD web practices by engineering database-level security policies (RLS), edge proxy rate limiters, and automated SLA overdue detection triggers (Sec. 4.3, 5.3). ]
 )
+]
 
 == Mapping to Communication (CO6)
-- *Written Technical Documents:* Produced this comprehensive 20+ page course project report, along with the project proposal, SRS document, and GitHub developer documentation.
+- *Written Technical Documents:* Produced this comprehensive course project report, along with the project proposal, SRS document, and GitHub developer documentation.
 - *Oral Presentations:* Conducted live demonstrations showcasing multi-role workflows (Student complaint submission $->$ Staff claiming and resolving $->$ Admin dispatching and audit review).
-- *Visual Representation:* Integrated 7 formal UML and architectural diagrams (Gantt, WBS, Use-Case, State, Sequence, Class, ER schema) to illustrate system design with visual precision.
+- *Visual Representation:* Integrated 8 formal UML, DFD, and architectural diagrams (Gantt, WBS, Use-Case, State, Sequence, Class, ER schema, Level-1 DFD) to illustrate system design with visual precision.

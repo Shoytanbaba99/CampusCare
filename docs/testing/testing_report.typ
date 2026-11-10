@@ -57,7 +57,7 @@
 
 #align(center)[
   #v(0.2cm)
-  #image("../srs/uits_logo.png", width: 22%)
+  #image("uits_logo.png", width: 22%)
   #v(0.3cm)
 
   #text(14pt, weight: "bold", fill: rgb("#0f172a"))[
@@ -67,14 +67,18 @@
     Department of Computer Science and Engineering
   ]
 
-  #v(0.6cm)
+  #v(0.5cm)
   #line(length: 95%, stroke: 1.2pt + rgb("#059669"))
   #v(0.2cm)
 
   #text(17pt, weight: "bold", fill: rgb("#065f46"))[
     Software Testing and Quality Assurance Report
   ] \
-  #v(0.15cm)
+  #v(0.12cm)
+  #rect(fill: rgb("#dcfce7"), stroke: 0.6pt + rgb("#16a34a"), radius: 3pt, inset: (x: 10pt, y: 3.5pt))[
+    #text(9pt, weight: "bold", fill: rgb("#166534"))[Mapped Course Outcome: CO3 (Testing & Quality Assurance)]
+  ] \
+  #v(0.12cm)
   #text(12pt, weight: "bold", fill: rgb("#1e293b"))[
     Project Title: CampusCare — Facility Maintenance & Complaint Platform
   ] \
@@ -85,7 +89,7 @@
 
   #v(0.2cm)
   #line(length: 95%, stroke: 1.2pt + rgb("#059669"))
-  #v(0.6cm)
+  #v(0.5cm)
 
   #grid(
     columns: (1fr, 1fr),
@@ -108,12 +112,15 @@
       #text(9.5pt)[
         *Shafayat Hossain Shafin* \
         ID: 0432320005101088 \
+        _Role: System Tester & QA Lead_ \
         #v(0.1cm)
         *Md. Masud Rahman* \
         ID: 0432320005101064 \
+        _Role: Full-Stack Lead & Architecture_ \
         #v(0.1cm)
         *Rudro Antony Mrong* \
         ID: 0432320005101059 \
+        _Role: Database & Backend Engineer_ \
         #v(0.15cm)
         *Submission Date:* November 2026
       ]
@@ -130,11 +137,12 @@
   inset: 8pt
 )[
   #text(9pt)[
-    *Laboratory Objective:* Design and execute a comprehensive testing strategy for the CampusCare project. Formulate unit test cases applying Equivalence Partitioning and Boundary Value Analysis, refine edge cases using *Qodo Gen (CodiumAI)*, verify the test suite via the *Vitest* execution engine achieving 100% code coverage, and audit security vulnerabilities via *Snyk*.
+    *Laboratory Objective:* Design and execute a comprehensive testing strategy for the CampusCare project. Formulate unit and integration test cases applying Equivalence Partitioning and Boundary Value Analysis, refine edge cases using *Qodo Gen (CodiumAI)*, verify the test suite via the *Vitest* execution engine achieving 100% code coverage, and audit security vulnerabilities via *Snyk CLI*. \
+    *Tool Ecosystem Rationale:* While the laboratory curriculum references Diffblue (specialized for JVM/Java bytecode unit test synthesis), CampusCare is built on modern TypeScript (Next.js 16, React 19). Accordingly, *Vitest* was selected as our high-performance ESM test framework and *Qodo Gen* for TypeScript AST parsing and generative edge-case expansion.
   ]
 ]
 
-#v(0.5cm)
+#v(0.4cm)
 
 // ============================================================================
 // 1. TESTING STRATEGY & 4-STEP METHODOLOGY
@@ -145,11 +153,14 @@
 In strict accordance with the Software Testing and Quality Assurance laboratory framework (Mapped CO: *CO3*), our testing strategy was executed through a rigorous four-step engineering process:
 
 == Step 1: Attempt (Design It Yourself)
-1. *Equivalence Partitioning & Boundary Value Analysis:* Before utilizing automated assistive tools, the team decomposed the system into three critical functional modules:
+1. *Equivalence Partitioning & Boundary Value Analysis:* Before utilizing automated assistive tools, the team designed unit test cases for the core business logic across three domains:
    - *Input Validation:* University credential formats, string length constraints (title < 5, description < 10), and priority enums (`low`, `medium`, `high`, `critical`).
    - *SLA Engine:* Target completion timestamp calculation across four priority windows (4h, 24h, 72h, 168h) and overdue flag transitions.
    - *Role-Based Access Control (RBAC):* Department queue isolation, student access barriers, and admin ticket reassignment privileges.
-2. *Test Harness Formulation:* Configured the Vitest v4.1 testing engine with V8 coverage reporting integrated directly into the TypeScript build toolchain.
+2. *Key End-to-End Integration Flows:* Integrated tests for core transaction flows linking multi-module operations:
+   - *Flow A (Submission -> SLA Assignment):* Student submits valid complaint payload -> Zod parser sanitizes and confirms schema -> SLA engine calculates precise due date based on chosen priority.
+   - *Flow B (Queue Access -> Ticket Reassignment):* Staff attempts queue access -> RBAC engine restricts view to staff member's department -> Admin executes privileged cross-department ticket reassignment.
+3. *Test Harness Formulation:* Configured the Vitest v4.1 testing engine with V8 coverage reporting integrated directly into the TypeScript build toolchain.
 
 == Step 2: Refine (Improve Solution with Qodo Gen)
 - Using the *Qodo Gen (formerly CodiumAI)* extension within our IDE, we inspected each core business module (`src/lib/validations/`, `src/lib/sla.ts`, `src/lib/rbac.ts`).
@@ -193,7 +204,7 @@ The following test cases were executed using our Vitest test suite (`tests/campu
   fill: (col, row) => if row == 0 { rgb("#ecfdf5") } else { none },
   stroke: 0.5pt + rgb("#cbd5e1"),
   align: (center + horizon),
-  [ *Test ID* ], [ *Test Scenario* ], [ *Pre-conditions* ], [ *Test Steps* ], [ *Expected Result* ], [ *Actual Result* ], [ *Status* ],
+  [ *Test Case ID* ], [ *Test Scenario* ], [ *Preconditions* ], [ *Test Steps* ], [ *Expected Result* ], [ *Actual Result* ], [ *Status* ],
   [ TC_01 ], [ Valid Login ], [ User on login page ], [ 1. Enter valid email \ 2. Enter valid password \ 3. Submit ], [ Schema returns success = true ], [ Schema safeParse = true ], [ *Pass* ],
   [ TC_02 ], [ Malformed Email ], [ User on login page ], [ 1. Enter `"not-an-email"` \ 2. Submit ], [ Validation error: "valid university email" ], [ Catches invalid format error ], [ *Pass* ],
   [ TC_03 ], [ Short Password ], [ User on signup page ], [ 1. Enter password `"123"` \ 2. Submit ], [ Validation error: "at least 6 characters" ], [ Rejects short password with error ], [ *Pass* ],
@@ -227,9 +238,18 @@ The following test cases were executed using our Vitest test suite (`tests/campu
 == Fundamental Principles of Unit Testing
 Unit testing isolates the smallest testable parts of an application (pure functions, schema parsers, calculation engines) and verifies their correctness independently. Modern professional unit testing enforces the *AAA (Arrange, Act, Assert)* pattern:
 
-- *Arrange:* Set up all necessary preconditions, input data, and test parameters.
-- *Act:* Invoke the specific unit function or schema parser under test.
-- *Assert:* Verify that the received output strictly matches the expected outcome.
+1. *Arrange (Setting Up Preconditions):*
+   - *What:* Initializes all required objects, mock fixtures, inputs, and environment configurations before invoking test operations.
+   - *How:* Instantiates immutable typed payloads, mock session objects (`UserSession`), and deterministic reference timestamps (`new Date(...)`).
+   - *Why:* Guarantees reproducible, isolated test runs that do not bleed side-effects across test suites.
+2. *Act (Invoking Target Operation):*
+   - *What:* Executes the single unit method or validation parser being tested.
+   - *How:* Calls functions such as `complaintSchema.safeParse()`, `calculateSlaDueDate()`, or `canAccessQueue()`.
+   - *Why:* Strictly isolates the execution step so failures map directly to the unit undergoing evaluation.
+3. *Assert (Verifying Output):*
+   - *What:* Evaluates whether the actual outcome strictly satisfies all required specifications.
+   - *How:* Uses Vitest assertion matchers such as `expect(result.success).toBe(true)` or `expect(isAllowed).toBe(false)`.
+   - *Why:* Prevents defective logic from propagating into production builds by halting execution immediately upon divergence.
 
 == Step-by-Step AAA Implementation Excerpts (TypeScript & Vitest)
 
@@ -354,12 +374,20 @@ The coverage tool analyzed every statement, branch, function, and physical line 
   [ *Total Suite Coverage* ], [ *100%* ], [ *100%* ], [ *100%* ], [ *100%* ], [ *0 Lines Uncovered* ]
 )
 
-== Defects & Edge Cases Discovered and Resolved
-Through iterative refinement with Qodo Gen and Vitest, four critical defect risks were identified and resolved:
-1. *Defect 1: Unhandled Unknown Priority Strings:* Passing an unmapped priority string originally resulted in `NaN` timestamp math. Resolved by adding a nullish coalescing fallback default (`hours = SLA_HOURS_MAP[priority] ?? 72`).
-2. *Defect 2: String vs. Date Polymorphism:* Overdue detection initially assumed `Date` objects, causing errors when serialized JSON strings arrived from API caches. Resolved with dynamic type normalization (`typeof slaDueAt === "string" ? new Date(slaDueAt) : slaDueAt`).
-3. *Defect 3: Administrative Lockout Risk:* Role management allowed an admin to demote themselves, creating a condition where zero campus admins existed. Resolved by implementing `canSelfDemote` guard logic.
-4. *Defect 4: Short String Submissions:* Handled user submissions with single-character titles (`"AC"`) by enforcing strict Zod min-length rules ($min(5)$) with clear user-facing error prompts.
+== Defect Log & Resolved Edge Cases
+Through iterative refinement with Qodo Gen and Vitest, four critical software defects and edge-case vulnerabilities were isolated and resolved:
+
+#table(
+  columns: (0.8fr, 0.9fr, 1.8fr, 2.5fr),
+  fill: (col, row) => if row == 0 { rgb("#ecfdf5") } else { none },
+  stroke: 0.5pt + rgb("#cbd5e1"),
+  align: (center + horizon, center + horizon, left + horizon, left + horizon),
+  [ *Defect ID* ], [ *Severity* ], [ *Defect Description* ], [ *Root Cause & Resolution Patch* ],
+  [ `DEF_01` ], [ #text(fill: rgb("#b91c1c"), weight: "bold")[High] ], [ *Unhandled Priority Strings:* Passing unknown priority string produced `NaN` target deadline timestamps. ], [ *Root Cause:* Unindexed map lookup. \ *Patch:* Nullish coalescing fallback default (`hours = SLA_HOURS_MAP[priority] ?? 72`). ],
+  [ `DEF_02` ], [ #text(fill: rgb("#b91c1c"), weight: "bold")[High] ], [ *String vs. Date Polymorphism:* Overdue detection threw TypeError on serialized ISO cache strings. ], [ *Root Cause:* Direct Date method call. \ *Patch:* Dynamic type normalization (`typeof slaDueAt === "string" ? new Date(slaDueAt) : slaDueAt`). ],
+  [ `DEF_03` ], [ #text(fill: rgb("#991b1b"), weight: "bold")[Critical] ], [ *Admin Self-Demotion Lockout:* Administrators could demote themselves, risking zero campus admins. ], [ *Root Cause:* Missing actor vs target boundary check. \ *Patch:* Strict guard logic in `canSelfDemote(actorId, targetId, role)`. ],
+  [ `DEF_04` ], [ #text(fill: rgb("#d97706"), weight: "bold")[Medium] ], [ *Single-Character Title Bypass:* Inadequate validation allowed non-descriptive tickets (`"AC"`). ], [ *Root Cause:* Unbounded string schema. \ *Patch:* Strict Zod minimum length constraint ($min(5)$) with actionable feedback. ]
+)
 
 == Snyk Security Vulnerability Audit
 Static dependency and code analysis was performed via the *Snyk CLI*:
