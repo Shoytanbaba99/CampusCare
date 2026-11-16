@@ -26,16 +26,9 @@
       v(0.15cm)
       line(length: 100%, stroke: 0.5pt + rgb("#1D4A38"))
       v(0.15cm)
-      grid(
-        columns: (1fr, auto),
-        align: (left + horizon, right + horizon),
-        [
-          #text(size: 9pt, fill: rgb("#94A3B8"))[CampusCare — CSE 416 Software Project Design and Development]
-        ],
-        [
-          #text(size: 9pt, weight: "bold", fill: rgb("#10B981"))[#page-num]
-        ]
-      )
+      align(right)[
+        #text(size: 9pt, weight: "bold", fill: rgb("#10B981"))[#page-num]
+      ]
     }
   }
 )

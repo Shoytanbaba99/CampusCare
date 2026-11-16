@@ -18,10 +18,8 @@
     if page-num > 2 [
       #line(length: 100%, stroke: 0.5pt + rgb("#cbd5e1"))
       #v(-0.3em)
-      #text(8.5pt, fill: rgb("#475569"))[
-        _Department of CSE, UITS_
-        #h(1fr)
-        Page #page-num
+      #align(right)[
+        #text(8.5pt, fill: rgb("#475569"))[Page #page-num]
       ]
     ]
   }
