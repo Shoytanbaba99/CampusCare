@@ -86,13 +86,16 @@
     columns: (1fr, 1fr, 1fr),
     gutter: 12pt,
     card(title: "Md. Masud Rahman", [
-      #text(size: 11pt, fill: rgb("#D1FAE5"))[ID: 0432320005101064\ CSE Department, UITS]
+      #text(size: 10.5pt, fill: rgb("#34D399"), weight: "bold")[Full-Stack Lead & Architecture]\
+      #text(size: 10pt, fill: rgb("#D1FAE5"))[ID: 0432320005101064\ CSE Department, UITS]
     ]),
     card(title: "Rudro Antony Mrong", [
-      #text(size: 11pt, fill: rgb("#D1FAE5"))[ID: 0432320005101059\ CSE Department, UITS]
+      #text(size: 10.5pt, fill: rgb("#34D399"), weight: "bold")[UI/UX Design, Requirements & QA]\
+      #text(size: 10pt, fill: rgb("#D1FAE5"))[ID: 0432320005101059\ CSE Department, UITS]
     ]),
     card(title: "Shafayat Hossain Shafin", [
-      #text(size: 11pt, fill: rgb("#D1FAE5"))[ID: 0432320005101088\ CSE Department, UITS]
+      #text(size: 10.5pt, fill: rgb("#34D399"), weight: "bold")[Technical Documentation Lead]\
+      #text(size: 10pt, fill: rgb("#D1FAE5"))[ID: 0432320005101088\ CSE Department, UITS]
     ])
   )
 
@@ -443,18 +446,44 @@
 // ==========================================
 #slide-title("11. Team Contribution Table", subtitle: "Equitable Distribution of Engineering Work")
 
+#text(size: 9pt)[
 #table(
-  columns: (1.5fr, 1.8fr, 3fr),
+  columns: (1.3fr, 2.1fr, 1.3fr, 2.1fr),
   stroke: (x, y) => if y == 0 { (bottom: 1.5pt + rgb("#10B981")) } else { 0.5pt + rgb("#1D4A38") },
   fill: (x, y) => if y == 0 { rgb("#134E4A") } else if calc.even(y) { rgb("#082419") } else { rgb("#061A12") },
   align: (left + horizon),
+  inset: 5.5pt,
   table.header(
-    [*Student ID*], [*Member Name*], [*Core Technical Roles & Contributions*]
+    [*Member (Name, ID)*], [*Modules / Tasks Owned*], [*Contribution Focus*], [*Documentation & Role*]
   ),
-  [0432320005101064], [Md. Masud Rahman], [Full-Stack System Architecture, Next.js Server Actions, Gemini AI Dispatcher, Upstash Redis Live Chat, SLA Calculation Engine.],
-  [0432320005101059], [Rudro Antony Mrong], [Requirements Engineering, SRS Formulation, System Modeling (DFD, Class, Sequence Diagrams), Literature Review & UI Design.],
-  [0432320005101088], [Shafayat Hossain Shafin], [System Tester & Quality Assurance, Automated Unit Testing with Vitest (19 test cases, 100% coverage), SLA Boundary Tests, Snyk Security Auditing, Test Documentation.]
+  [
+    *Shafayat H. Shafin*\
+    #text(size: 8pt, fill: rgb("#94A3B8"))[0432320005101088]\
+    #text(size: 8pt, fill: rgb("#34D399"))[_Technical Doc Lead_]
+  ],
+  [Technical documentation, literature review, user guides, developer guidelines, project proposal, report formatting.],
+  [Requirement Elicitation & System Analysis],
+  [Authored Section 1 (Introduction), Section 2 (Background Study & SRS), and overall report compilation & formatting.],
+
+  [
+    *Md. Masud Rahman*\
+    #text(size: 8pt, fill: rgb("#94A3B8"))[0432320005101064]\
+    #text(size: 8pt, fill: rgb("#34D399"))[_Full-Stack Lead_]
+  ],
+  [Full-stack architecture, Next.js 16 Server Actions, Gemini AI Dispatcher, Edge middleware, Redis live chat, SLA engine.],
+  [System Architecture & Backend Integration],
+  [Authored Section 4 (Implementation), Section 6 (Conclusion & Future Work), system integration, and presentation lead.],
+
+  [
+    *Rudro Antony Mrong*\
+    #text(size: 8pt, fill: rgb("#94A3B8"))[0432320005101059]\
+    #text(size: 8pt, fill: rgb("#34D399"))[_UI/UX, Requirements & QA_]
+  ],
+  [Stakeholder requirements, UI/UX design system, UML & DFD modeling, Vitest test suite execution, Snyk security audits.],
+  [UI/UX Engineering & Software Verification],
+  [Authored Section 3 (System Design & UI/UX), Section 5 (Testing & QA), Table 5.1 test cases, code coverage report.]
 )
+]
 
 #pagebreak()
 
